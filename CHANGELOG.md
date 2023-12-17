@@ -10,6 +10,10 @@ Version Updated
 The version number for this package has increased due to a version update of a related graphics package.
 
 
+## [1.0.4] - 2023-12-17
+### Fixed
+- not able customize the gear angle values, changed from const to normal variable, should be able to edit the values now
+
 ## [1.0.3] - 2023-12-17
 ### Fixed
 - Sensitive too less modified constants by half
