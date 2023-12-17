@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 Version Updated
 The version number for this package has increased due to a version update of a related graphics package.
-
+## [1.0.7] - 2023-12-17
+### Fixed
+- [Major fix] Fixed End A not turning to false when the threshold is crossed
 
 ## [1.0.6] - 2023-12-17
 ### Added

@@ -25,7 +25,7 @@ namespace fourtyfourty.gearController
     {
         public GearType gearType;
         public GearMovementAxis gearMovementAxis;
-        public bool isGrabbed { get; set; }
+        public bool isGrabbed;
 
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
@@ -334,7 +334,12 @@ namespace fourtyfourty.gearController
 
                         reachedEndX_A = true;
                         break;
+                    
+                    case var x when x > 360 - xMaxAngle+axisThreshold:
+                        reachedEndX_A = false;
+                        break;
                 }
+                
             }
         }
 
@@ -350,7 +355,6 @@ namespace fourtyfourty.gearController
                     }
                 }
 
-                Debug.Log("PLUS Test Z");
                 switch (transform.eulerAngles.z)
                 {
                     case var x when x >= zMaxAngle && x < thresholdMaxCheck:
@@ -380,6 +384,9 @@ namespace fourtyfourty.gearController
                         }
 
                         reachedEndZ_A = true;
+                        break;
+                    case var x when x > 360 - xMaxAngle+axisThreshold:
+                        reachedEndZ_A = false;
                         break;
                 }
             }
