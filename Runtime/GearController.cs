@@ -165,7 +165,8 @@ namespace fourtyfourty.gearController
                 {
                     onGearIsInNeutral = true;
                     whenGearIsOnNeutral?.Invoke();
-                }
+                }else if(!isGrabbed && gearType == GearType.VerticalLiver && gearType == GearType.HorizontalLiver){onGearIsInNeutral = true;
+                    whenGearIsOnNeutral?.Invoke();}
                 else
                 {
                     onGearIsInNeutral = false;
