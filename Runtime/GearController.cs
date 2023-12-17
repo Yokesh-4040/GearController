@@ -22,7 +22,7 @@ namespace fourtyfourty.gearController
     {
         public GearType gearType;
         public GearMovementAxis gearMovementAxis;
-        public bool isGrabbed;
+        public bool isGrabbed { get; set; } 
 
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
