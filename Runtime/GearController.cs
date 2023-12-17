@@ -25,7 +25,7 @@ namespace fourtyfourty.gearController
         public GearMovementAxis gearMovementAxis;
         public bool isGrabbed;
         public bool atOrigin;
-        
+
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
 
@@ -34,8 +34,7 @@ namespace fourtyfourty.gearController
         public bool onGear4;
         public bool onGearIsInNeutral;
 
-        [Space(10)] 
-        public bool reachedEndX_A;
+        [Space(10)] public bool reachedEndX_A;
         public bool reachedEndX_B;
         public bool reachedEndZ_A;
         public bool reachedEndZ_B;
@@ -62,8 +61,7 @@ namespace fourtyfourty.gearController
         [FormerlySerializedAs("ThresholdMaxCheck")] [SerializeField]
         private float thresholdMaxCheck = 50;
 
-        [Space(20)] 
-        public bool limitedToPositiveX;
+        [Space(20)] public bool limitedToPositiveX;
         public bool limitedToPositiveZ;
         public bool limitedToNegativeZ;
         public bool limitedToNegativeX;
@@ -143,13 +141,13 @@ namespace fourtyfourty.gearController
 
 
         private float _elapsedTime;
-       
+
         private void ReturnToOrigin()
         {
             if (!isReturning) return;
 
             if (!autoReturn) return;
-            
+
             if (transform.rotation == _originalRotation)
             {
                 atOrigin = true;
@@ -166,7 +164,6 @@ namespace fourtyfourty.gearController
                 // Ensure the object finishes exactly at the original rotation
                 transform.rotation = _originalRotation;
                 isReturning = false;
-              
             }
         }
 
@@ -189,16 +186,9 @@ namespace fourtyfourty.gearController
         public void Update()
         {
             ReturnToOrigin();
-           
+
             if (!isGrabbed && !isReturning && !atOrigin)
             {
-                if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver)
-                {
-                    reachedEndX_A = false;
-                    reachedEndX_B = false;
-                    reachedEndZ_A= false;
-                    reachedEndZ_B = false;
-                }
                 Debug.Log("Auto 1");
                 if (!onGear3 && !onGear4 && !onGear1 && !onGear2)
                 {
@@ -208,22 +198,33 @@ namespace fourtyfourty.gearController
                 if (gearType == GearType.PlusLiver)
                 {
                     StartReturnToOriginalRotation();
-                } 
+                }
             }
 
             switch (isGrabbed)
             {
                 case false:
+                    if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver)
+                    {
+                        reachedEndX_A = false;
+                        reachedEndX_B = false;
+                        reachedEndZ_A = false;
+                        reachedEndZ_B = false;
+                    }
+
                     return;
                 case true when isReturning:
                     isReturning = false;
                     break;
+                case true:
+                    atOrigin = false;
+                    break;
             }
 
             NeutralCheck();
-            
+
             var thisTransform = transform;
-            
+
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
             {
                 switch (gearType)
