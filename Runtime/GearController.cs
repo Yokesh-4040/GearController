@@ -25,7 +25,7 @@ namespace fourtyfourty.gearController
         public GearMovementAxis gearMovementAxis;
         public bool isGrabbed;
         public bool atOrigin;
-
+        public bool overRideAutoNeutralOnHorizontalAndVertical;
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
 
@@ -215,7 +215,7 @@ namespace fourtyfourty.gearController
                         reachedEndZ_A = false;
                         reachedEndZ_B = false;
                         
-                        if (!onGearIsInNeutral)
+                        if (!onGearIsInNeutral && !overRideAutoNeutralOnHorizontalAndVertical)
                         {
                             whenGearIsOnNeutral?.Invoke();
                             onGearIsInNeutral = true;
