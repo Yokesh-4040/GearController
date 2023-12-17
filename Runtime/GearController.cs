@@ -210,6 +210,7 @@ namespace fourtyfourty.gearController
                         reachedEndX_B = false;
                         reachedEndZ_A = false;
                         reachedEndZ_B = false;
+                        whenGearIsOnNeutral?.Invoke();
                     }
 
                     return;
