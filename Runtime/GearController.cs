@@ -32,7 +32,7 @@ namespace fourtyfourty.gearController
         public bool onGear2;
         public bool onGear3;
         public bool onGear4;
-        public bool onGearIsInNeutral;
+        public bool onGearIsInNeutral = true;
 
         [Space(10)] public bool reachedEndX_A;
         public bool reachedEndX_B;
@@ -93,6 +93,8 @@ namespace fourtyfourty.gearController
 
         private void Start()
         {
+            onGearIsInNeutral = true;
+            whenGearIsOnNeutral.AddListener(() => { Debug.Log("We have reached Neutral", gameObject); });
             _originalRotation = transform.rotation;
 
             gearMovementAxis = gearType switch
@@ -151,6 +153,7 @@ namespace fourtyfourty.gearController
             if (transform.rotation == _originalRotation)
             {
                 atOrigin = true;
+                isReturning = false;
                 return;
             }
 
@@ -204,20 +207,28 @@ namespace fourtyfourty.gearController
             switch (isGrabbed)
             {
                 case false:
-                    if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver || gearType == GearType.PlusLiver)
+                    if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver ||
+                        gearType == GearType.PlusLiver)
                     {
                         reachedEndX_A = false;
                         reachedEndX_B = false;
                         reachedEndZ_A = false;
                         reachedEndZ_B = false;
-                        whenGearIsOnNeutral?.Invoke();
+                        
+                        if (!onGearIsInNeutral)
+                        {
+                            whenGearIsOnNeutral?.Invoke();
+                            onGearIsInNeutral = true;
+                        }
                     }
 
                     return;
                 case true when isReturning:
+
                     isReturning = false;
                     break;
                 case true:
+
                     atOrigin = false;
                     break;
             }
