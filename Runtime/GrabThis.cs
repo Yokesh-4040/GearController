@@ -4,13 +4,13 @@ namespace fourtyfourty.gearController
 {
 
 
-    public class GrabThis : MonoBehaviour
+    public class GrabThis : MonoBehaviour 
     {
         private Transform _objectToRotate; // Assign the object you want to rotate in the Inspector
 
         [SerializeField] private Transform handleDefaultPos; // max sure the pivot is correct for this
 
-        [SerializeField] public float rotationSpeed = -20.0f;
+         private float rotationSpeed = -20.0f;
 
         private Vector3 _previousPosition;
 

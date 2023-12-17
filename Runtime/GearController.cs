@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
@@ -26,7 +24,8 @@ namespace fourtyfourty.gearController
         public GearType gearType;
         public GearMovementAxis gearMovementAxis;
         public bool isGrabbed;
-
+        public bool atOrigin;
+        
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
 
@@ -35,7 +34,8 @@ namespace fourtyfourty.gearController
         public bool onGear4;
         public bool onGearIsInNeutral;
 
-        [Space(10)] public bool reachedEndX_A;
+        [Space(10)] 
+        public bool reachedEndX_A;
         public bool reachedEndX_B;
         public bool reachedEndZ_A;
         public bool reachedEndZ_B;
@@ -62,7 +62,8 @@ namespace fourtyfourty.gearController
         [FormerlySerializedAs("ThresholdMaxCheck")] [SerializeField]
         private float thresholdMaxCheck = 50;
 
-        [Space(20)] public bool limitedToPositiveX;
+        [Space(20)] 
+        public bool limitedToPositiveX;
         public bool limitedToPositiveZ;
         public bool limitedToNegativeZ;
         public bool limitedToNegativeX;
@@ -94,7 +95,6 @@ namespace fourtyfourty.gearController
 
         private void Start()
         {
-            whenGearIsOnNeutral.AddListener(() => { Debug.Log("NEUTRAL"); });
             _originalRotation = transform.rotation;
 
             gearMovementAxis = gearType switch
@@ -143,10 +143,20 @@ namespace fourtyfourty.gearController
 
 
         private float _elapsedTime;
-
+       
         private void ReturnToOrigin()
         {
             if (!isReturning) return;
+
+            if (!autoReturn) return;
+            
+            if (transform.rotation == _originalRotation)
+            {
+                atOrigin = true;
+                return;
+            }
+
+            atOrigin = false;
             transform.rotation = Quaternion.Slerp(transform.rotation, _originalRotation, _elapsedTime);
             _elapsedTime += Time.deltaTime * returnSpeed;
 
@@ -168,26 +178,44 @@ namespace fourtyfourty.gearController
                     onGearIsInNeutral = true;
                     whenGearIsOnNeutral?.Invoke();
                 }
-                else if (!isGrabbed)
-                    if (gearType is GearType.VerticalLiver or GearType.HorizontalLiver)
-                    {
-                        onGearIsInNeutral = true;
-                        whenGearIsOnNeutral?.Invoke();
-                    }
-                    else
-                    {
-                        onGearIsInNeutral = false;
-                    }
+                else
+                {
+                    onGearIsInNeutral = false;
+                }
             }
         }
 
         public void Update()
         {
-            NeutralCheck();
-            var thisTransform = transform;
             ReturnToOrigin();
+           
+            if (!isGrabbed && !isReturning && !atOrigin)
+            {
+                Debug.Log("Auto 1");
+                if (!onGear3 && !onGear4 && !onGear1 && !onGear2)
+                {
+                    StartReturnToOriginalRotation();
+                }
 
+                if (gearType == GearType.PlusLiver)
+                {
+                    StartReturnToOriginalRotation();
+                } 
+            }
 
+            switch (isGrabbed)
+            {
+                case false:
+                    return;
+                case true when isReturning:
+                    isReturning = false;
+                    break;
+            }
+
+            NeutralCheck();
+            
+            var thisTransform = transform;
+            
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
             {
                 switch (gearType)
@@ -195,31 +223,30 @@ namespace fourtyfourty.gearController
                     case GearType.PlusLiver:
                     {
                         var eulerAngles1 = transform.eulerAngles;
-                        var eulerAngles = eulerAngles1;
                         var angles = eulerAngles1;
                         RefreshLimit();
 
-                        switch (eulerAngles)
+                        switch (eulerAngles1)
                         {
-                            case var _ when eulerAngles.x > middleThreshold && angles.x < 50:
+                            case var _ when eulerAngles1.x > middleThreshold && angles.x < 50:
                                 angles = new Vector3(angles.x, 0, 0);
                                 transform.eulerAngles = angles;
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to X");
                                 break;
 
-                            case var _ when eulerAngles.x < 360 - middleThreshold && eulerAngles.x > 50:
+                            case var _ when eulerAngles1.x < 360 - middleThreshold && eulerAngles1.x > 50:
                                 angles = new Vector3(transform.eulerAngles.x, 0, 0);
                                 thisTransform.eulerAngles = angles;
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to -X");
                                 break;
-                            case var _ when eulerAngles.z > middleThreshold && eulerAngles.z < 50:
+                            case var _ when eulerAngles1.z > middleThreshold && eulerAngles1.z < 50:
                                 thisTransform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
                                 limitedToPositiveZ = true;
                                 Debug.Log("Limited to Z");
                                 break;
-                            case var _ when eulerAngles.z < 360 - middleThreshold && eulerAngles.z > 50:
+                            case var _ when eulerAngles1.z < 360 - middleThreshold && eulerAngles1.z > 50:
                                 thisTransform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
                                 limitedToNegativeZ = true;
                                 Debug.Log("Limited to -Z");
@@ -258,32 +285,6 @@ namespace fourtyfourty.gearController
             if (gearType is GearType.HGearShift)
             {
                 GearCalculation(thisTransform);
-            }
-
-            if (!autoReturn)
-            {
-                Debug.Log("No Auto rotate");
-                return;
-            }
-
-            if (!isGrabbed && !isReturning)
-            {
-                Debug.Log("Auto 1");
-                if (!onGear3 && !onGear4 && !onGear1 && !onGear2)
-                {
-                    StartReturnToOriginalRotation();
-                }
-
-                if (gearType == GearType.PlusLiver)
-                {
-                    StartReturnToOriginalRotation();
-                }
-            }
-
-            if (isGrabbed && isReturning)
-            {
-                Debug.Log("Auto 2");
-                isReturning = false;
             }
         }
 
@@ -334,12 +335,11 @@ namespace fourtyfourty.gearController
 
                         reachedEndX_A = true;
                         break;
-                    
-                    case var x when x > 360 - xMaxAngle+axisThreshold:
+
+                    case var x when x > 360 - xMaxAngle + axisThreshold:
                         reachedEndX_A = false;
                         break;
                 }
-                
             }
         }
 
@@ -385,7 +385,7 @@ namespace fourtyfourty.gearController
 
                         reachedEndZ_A = true;
                         break;
-                    case var x when x > 360 - xMaxAngle+axisThreshold:
+                    case var x when x > 360 - xMaxAngle + axisThreshold:
                         reachedEndZ_A = false;
                         break;
                 }
