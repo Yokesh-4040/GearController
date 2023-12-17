@@ -204,7 +204,7 @@ namespace fourtyfourty.gearController
             switch (isGrabbed)
             {
                 case false:
-                    if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver)
+                    if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver || gearType == GearType.PlusLiver)
                     {
                         reachedEndX_A = false;
                         reachedEndX_B = false;
