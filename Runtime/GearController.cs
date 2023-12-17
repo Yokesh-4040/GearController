@@ -29,13 +29,12 @@ namespace fourtyfourty.gearController
 
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
-
         public bool onGear2;
         public bool onGear3;
         public bool onGear4;
+        public bool onGearIsInNeutral;
 
-        [Space(10)] 
-        public bool reachedEndX_A;
+        [Space(10)] public bool reachedEndX_A;
         public bool reachedEndX_B;
         public bool reachedEndZ_A;
         public bool reachedEndZ_B;
@@ -45,15 +44,24 @@ namespace fourtyfourty.gearController
         [FormerlySerializedAs("_isReturning")] public bool isReturning;
 
         private Quaternion _originalRotation;
+
         [Space(10)]
-[Header("<b><u>Gear Values</b></u>")]
-[Description("Edit this value to change how much the gear can move around")]
-        [FormerlySerializedAs("XMaxAngle")] [SerializeField] private float xMaxAngle = 5;
-        [FormerlySerializedAs("ZMaxAngle")] [SerializeField] private float zMaxAngle = 5;
-        [FormerlySerializedAs("AxisThreshold")] [SerializeField] private float axisThreshold = 1.5f;
-        [FormerlySerializedAs("ThresholdMaxCheck")] [SerializeField] private float thresholdMaxCheck = 50;
-[Space(20)]
-        public bool limitedToPositiveX;
+        [Header("<b><u>Gear Values</b></u>")]
+        [Description("Edit this value to change how much the gear can move around")]
+        [FormerlySerializedAs("XMaxAngle")]
+        [SerializeField]
+        private float xMaxAngle = 5;
+
+        [FormerlySerializedAs("ZMaxAngle")] [SerializeField]
+        private float zMaxAngle = 5;
+
+        [FormerlySerializedAs("AxisThreshold")] [SerializeField]
+        private float axisThreshold = 1.5f;
+
+        [FormerlySerializedAs("ThresholdMaxCheck")] [SerializeField]
+        private float thresholdMaxCheck = 50;
+
+        [Space(20)] public bool limitedToPositiveX;
         public bool limitedToPositiveZ;
         public bool limitedToNegativeZ;
         public bool limitedToNegativeX;
@@ -74,7 +82,7 @@ namespace fourtyfourty.gearController
         public UnityEvent liverReachedX_B = new();
 
 
-        public void RefreshLimit()
+        private void RefreshLimit()
         {
             limitedToPositiveX = false;
             limitedToNegativeX = false;
@@ -85,6 +93,7 @@ namespace fourtyfourty.gearController
 
         private void Start()
         {
+            whenGearIsOnNeutral.AddListener(()=>{Debug.Log("NEUTRAL");});
             _originalRotation = transform.rotation;
 
             gearMovementAxis = gearType switch
@@ -93,7 +102,7 @@ namespace fourtyfourty.gearController
                 GearType.VerticalLiver => GearMovementAxis.Z,
                 _ => gearMovementAxis
             };
-
+          
             switch (gearType)
             {
                 case GearType.HorizontalLiver:
@@ -125,7 +134,6 @@ namespace fourtyfourty.gearController
                             limitedToNegativeZ = true;
                             break;
                     }
-
                     break;
                 }
             }
@@ -149,11 +157,28 @@ namespace fourtyfourty.gearController
             }
         }
 
+        public void NeutralCheck()
+        {
+            if (gearType is GearType.PlusLiver or GearType.VerticalLiver or GearType.HorizontalLiver)
+            {
+                if (!reachedEndX_A && !reachedEndX_B && !reachedEndZ_A && !reachedEndZ_B)
+                {
+                    onGearIsInNeutral = true;
+                    whenGearIsOnNeutral?.Invoke();
+                }
+                else
+                {
+                    onGearIsInNeutral = false;
+                }
+            }
+        }
         public void Update()
         {
+            NeutralCheck();
             var thisTransform = transform;
             ReturnToOrigin();
 
+            
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
             {
                 switch (gearType)
@@ -203,8 +228,6 @@ namespace fourtyfourty.gearController
                             ? new Vector3(transform.eulerAngles.x, 0, 0)
                             : new Vector3(0, 0, transform.eulerAngles.z);
                         break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             }
 
@@ -290,6 +313,7 @@ namespace fourtyfourty.gearController
                         Debug.Log("Resetting X");
                         reachedEndX_B = false;
                         reachedEndX_A = false;
+                       
                         break;
                     case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
                         thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
