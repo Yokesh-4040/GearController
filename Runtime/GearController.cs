@@ -29,6 +29,7 @@ namespace fourtyfourty.gearController
 
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
+
         public bool onGear2;
         public bool onGear3;
         public bool onGear4;
@@ -93,7 +94,7 @@ namespace fourtyfourty.gearController
 
         private void Start()
         {
-            whenGearIsOnNeutral.AddListener(()=>{Debug.Log("NEUTRAL");});
+            whenGearIsOnNeutral.AddListener(() => { Debug.Log("NEUTRAL"); });
             _originalRotation = transform.rotation;
 
             gearMovementAxis = gearType switch
@@ -102,7 +103,7 @@ namespace fourtyfourty.gearController
                 GearType.VerticalLiver => GearMovementAxis.Z,
                 _ => gearMovementAxis
             };
-          
+
             switch (gearType)
             {
                 case GearType.HorizontalLiver:
@@ -134,6 +135,7 @@ namespace fourtyfourty.gearController
                             limitedToNegativeZ = true;
                             break;
                     }
+
                     break;
                 }
             }
@@ -165,21 +167,27 @@ namespace fourtyfourty.gearController
                 {
                     onGearIsInNeutral = true;
                     whenGearIsOnNeutral?.Invoke();
-                }else if(!isGrabbed && gearType == GearType.VerticalLiver && gearType == GearType.HorizontalLiver){onGearIsInNeutral = true;
-                    whenGearIsOnNeutral?.Invoke();}
-                else
-                {
-                    onGearIsInNeutral = false;
                 }
+                else if (!isGrabbed)
+                    if (gearType is GearType.VerticalLiver or GearType.HorizontalLiver)
+                    {
+                        onGearIsInNeutral = true;
+                        whenGearIsOnNeutral?.Invoke();
+                    }
+                    else
+                    {
+                        onGearIsInNeutral = false;
+                    }
             }
         }
+
         public void Update()
         {
             NeutralCheck();
             var thisTransform = transform;
             ReturnToOrigin();
 
-            
+
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
             {
                 switch (gearType)
@@ -314,7 +322,7 @@ namespace fourtyfourty.gearController
                         Debug.Log("Resetting X");
                         reachedEndX_B = false;
                         reachedEndX_A = false;
-                       
+
                         break;
                     case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
                         thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
