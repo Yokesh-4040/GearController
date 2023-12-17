@@ -166,6 +166,7 @@ namespace fourtyfourty.gearController
                 // Ensure the object finishes exactly at the original rotation
                 transform.rotation = _originalRotation;
                 isReturning = false;
+              
             }
         }
 
@@ -191,6 +192,13 @@ namespace fourtyfourty.gearController
            
             if (!isGrabbed && !isReturning && !atOrigin)
             {
+                if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver)
+                {
+                    reachedEndX_A = false;
+                    reachedEndX_B = false;
+                    reachedEndZ_A= false;
+                    reachedEndZ_B = false;
+                }
                 Debug.Log("Auto 1");
                 if (!onGear3 && !onGear4 && !onGear1 && !onGear2)
                 {
