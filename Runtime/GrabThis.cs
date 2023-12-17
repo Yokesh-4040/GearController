@@ -10,7 +10,7 @@ namespace fourtyfourty.gearController
 
         [SerializeField] private Transform handleDefaultPos; // max sure the pivot is correct for this
 
-        [SerializeField] public float rotationSpeed = 1.0f;
+        [SerializeField] public float rotationSpeed = -20.0f;
 
         private Vector3 _previousPosition;
 

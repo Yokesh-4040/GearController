@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace fourtyfourty.gearController
 {
@@ -31,23 +34,25 @@ namespace fourtyfourty.gearController
         public bool onGear3;
         public bool onGear4;
 
-        [Space(10)] public bool reachedEndX_A;
+        [Space(10)] 
+        public bool reachedEndX_A;
         public bool reachedEndX_B;
         public bool reachedEndZ_A;
         public bool reachedEndZ_B;
 
 
         [Space(10)] [Range(0, 10)] public float returnSpeed = 10;
-        public bool _isReturning;
+        [FormerlySerializedAs("_isReturning")] public bool isReturning;
 
         private Quaternion _originalRotation;
-
-
-        [SerializeField] private float XMaxAngle = 5;
-        [SerializeField] private float ZMaxAngle = 5;
-        [SerializeField] private float AxisThreshold = 1.5f;
-        [SerializeField] private float ThresholdMaxCheck = 50;
-
+        [Space(10)]
+[Header("<b><u>Gear Values</b></u>")]
+[Description("Edit this value to change how much the gear can move around")]
+        [FormerlySerializedAs("XMaxAngle")] [SerializeField] private float xMaxAngle = 5;
+        [FormerlySerializedAs("ZMaxAngle")] [SerializeField] private float zMaxAngle = 5;
+        [FormerlySerializedAs("AxisThreshold")] [SerializeField] private float axisThreshold = 1.5f;
+        [FormerlySerializedAs("ThresholdMaxCheck")] [SerializeField] private float thresholdMaxCheck = 50;
+[Space(20)]
         public bool limitedToPositiveX;
         public bool limitedToPositiveZ;
         public bool limitedToNegativeZ;
@@ -127,27 +132,26 @@ namespace fourtyfourty.gearController
         }
 
 
-        private float _elapsedTime = 0f;
+        private float _elapsedTime;
 
-        public void ReturnToOrigin()
+        private void ReturnToOrigin()
         {
-            if (_isReturning)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, _originalRotation, _elapsedTime);
-                _elapsedTime += Time.deltaTime * returnSpeed;
+            if (!isReturning) return;
+            transform.rotation = Quaternion.Slerp(transform.rotation, _originalRotation, _elapsedTime);
+            _elapsedTime += Time.deltaTime * returnSpeed;
 
-                // Check if the interpolation is complete
-                if (_elapsedTime >= 1f)
-                {
-                    // Ensure the object finishes exactly at the original rotation
-                    transform.rotation = _originalRotation;
-                    _isReturning = false;
-                }
+            // Check if the interpolation is complete
+            if (_elapsedTime >= 1f)
+            {
+                // Ensure the object finishes exactly at the original rotation
+                transform.rotation = _originalRotation;
+                isReturning = false;
             }
         }
 
         public void Update()
         {
+            var thisTransform = transform;
             ReturnToOrigin();
 
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
@@ -158,8 +162,6 @@ namespace fourtyfourty.gearController
                     {
                         var eulerAngles1 = transform.eulerAngles;
                         var eulerAngles = eulerAngles1;
-                        var t = new Vector2(eulerAngles.x, eulerAngles.z);
-
                         var angles = eulerAngles1;
                         RefreshLimit();
 
@@ -174,17 +176,17 @@ namespace fourtyfourty.gearController
 
                             case var _ when eulerAngles.x < 360 - middleThreshold && eulerAngles.x > 50:
                                 angles = new Vector3(transform.eulerAngles.x, 0, 0);
-                                transform.eulerAngles = angles;
+                                thisTransform.eulerAngles = angles;
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to -X");
                                 break;
                             case var _ when eulerAngles.z > middleThreshold && eulerAngles.z < 50:
-                                transform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
+                                thisTransform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
                                 limitedToPositiveZ = true;
                                 Debug.Log("Limited to Z");
                                 break;
                             case var _ when eulerAngles.z < 360 - middleThreshold && eulerAngles.z > 50:
-                                transform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
+                                thisTransform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
                                 limitedToNegativeZ = true;
                                 Debug.Log("Limited to -Z");
                                 break;
@@ -201,10 +203,12 @@ namespace fourtyfourty.gearController
                             ? new Vector3(transform.eulerAngles.x, 0, 0)
                             : new Vector3(0, 0, transform.eulerAngles.z);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
 
-            transform.eulerAngles = gearType switch
+            thisTransform.eulerAngles = gearType switch
             {
                 GearType.VerticalLiver => gearMovementAxis == GearMovementAxis.X
                     ? new Vector3(transform.eulerAngles.x, 0, 0)
@@ -215,13 +219,13 @@ namespace fourtyfourty.gearController
                 _ => transform.eulerAngles
             };
 
-            XAxisCalculation();
-            ZAxisCalculation();
+            XAxisCalculation(thisTransform);
+            ZAxisCalculation(thisTransform);
 
 
             if (gearType is GearType.HGearShift)
             {
-                GearCalculation();
+                GearCalculation(thisTransform);
             }
 
             if (!autoReturn)
@@ -230,7 +234,7 @@ namespace fourtyfourty.gearController
                 return;
             }
 
-            if (!isGrabbed && !_isReturning)
+            if (!isGrabbed && !isReturning)
             {
                 Debug.Log("Auto 1");
                 if (!onGear3 && !onGear4 && !onGear1 && !onGear2)
@@ -244,21 +248,21 @@ namespace fourtyfourty.gearController
                 }
             }
 
-            if (isGrabbed && _isReturning)
+            if (isGrabbed && isReturning)
             {
                 Debug.Log("Auto 2");
-                _isReturning = false;
+                isReturning = false;
             }
         }
 
         private void StartReturnToOriginalRotation()
         {
-            _isReturning = true;
+            isReturning = true;
             _elapsedTime = 0f;
         }
 
 
-        private void XAxisCalculation()
+        private void XAxisCalculation(Transform thisTransform)
         {
             if (gearMovementAxis == GearMovementAxis.X || gearType == GearType.PlusLiver)
             {
@@ -270,12 +274,10 @@ namespace fourtyfourty.gearController
                     }
                 }
 
-                int t = 0;
-                float tt = 0;
                 switch (transform.eulerAngles.x)
                 {
-                    case var x when x >= XMaxAngle && x < ThresholdMaxCheck:
-                        transform.eulerAngles = new Vector3(XMaxAngle, 0, transform.eulerAngles.z);
+                    case var x when x >= xMaxAngle && x < thresholdMaxCheck:
+                        thisTransform.eulerAngles = new Vector3(xMaxAngle, 0, transform.eulerAngles.z);
                         if (!reachedEndX_B)
                         {
                             Debug.Log("Reach B End");
@@ -284,13 +286,13 @@ namespace fourtyfourty.gearController
 
                         reachedEndX_B = true;
                         break;
-                    case var x when x <= XMaxAngle - AxisThreshold:
+                    case var x when x <= xMaxAngle - axisThreshold:
                         Debug.Log("Resetting X");
                         reachedEndX_B = false;
                         reachedEndX_A = false;
                         break;
-                    case var x when x <= 360 - XMaxAngle && x > ThresholdMaxCheck:
-                        transform.eulerAngles = new Vector3(360 - XMaxAngle, 0, transform.eulerAngles.z);
+                    case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
+                        thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
                         if (!reachedEndX_A)
                         {
                             Debug.Log("Reach A End");
@@ -303,7 +305,7 @@ namespace fourtyfourty.gearController
             }
         }
 
-        private void ZAxisCalculation()
+        private void ZAxisCalculation(Transform thisTransform)
         {
             if (gearMovementAxis == GearMovementAxis.Z || gearType == GearType.PlusLiver)
             {
@@ -318,8 +320,8 @@ namespace fourtyfourty.gearController
                 Debug.Log("PLUS Test Z");
                 switch (transform.eulerAngles.z)
                 {
-                    case var x when x >= ZMaxAngle && x < ThresholdMaxCheck:
-                        transform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, ZMaxAngle);
+                    case var x when x >= zMaxAngle && x < thresholdMaxCheck:
+                        thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
                         if (!reachedEndZ_B)
                         {
                             Debug.Log("Reach B End Z");
@@ -330,14 +332,14 @@ namespace fourtyfourty.gearController
 
                         break;
 
-                    case var x when x <= ZMaxAngle - AxisThreshold:
+                    case var x when x <= zMaxAngle - axisThreshold:
                         Debug.Log("Resetting Z");
                         reachedEndZ_B = false;
                         reachedEndZ_A = false;
                         break;
 
-                    case var x when x <= 360 - ZMaxAngle && x > ThresholdMaxCheck:
-                        transform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - XMaxAngle);
+                    case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
+                        thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - xMaxAngle);
                         if (!reachedEndZ_A)
                         {
                             Debug.Log("Reach A End Z");
@@ -350,25 +352,7 @@ namespace fourtyfourty.gearController
             }
         }
 
-        private IEnumerator ReturnToOriginalRotation()
-        {
-            _isReturning = true;
-            var elapsedTime = 0f;
-
-            while (elapsedTime < 1f)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, _originalRotation, elapsedTime);
-                elapsedTime += Time.deltaTime * returnSpeed;
-                yield return null;
-            }
-
-            // Ensure the object finishes exactly at the original rotation
-            transform.rotation = _originalRotation;
-            _isReturning = false;
-        }
-
-
-        private void GearCalculation()
+        private void GearCalculation(Transform thisTransform)
         {
             if (reachedEndX_A || gearType == GearType.PlusLiver)
             {
@@ -378,8 +362,8 @@ namespace fourtyfourty.gearController
                     Debug.Log("Here B");
                     switch (transform.eulerAngles.z)
                     {
-                        case var x when x >= ZMaxAngle && x < ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, ZMaxAngle);
+                        case var x when x >= zMaxAngle && x < thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
 
                             if (!onGear1)
                             {
@@ -390,13 +374,13 @@ namespace fourtyfourty.gearController
                             onGear1 = true;
                             break;
 
-                        case var x when x <= ZMaxAngle - AxisThreshold:
+                        case var x when x <= zMaxAngle - axisThreshold:
                             onGear1 = false;
                             onGear2 = false;
                             break;
 
-                        case var x when x <= 360 - ZMaxAngle && x > ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - ZMaxAngle);
+                        case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - zMaxAngle);
 
                             if (!onGear2)
                             {
@@ -414,8 +398,8 @@ namespace fourtyfourty.gearController
                     Debug.Log("Here C");
                     switch (transform.eulerAngles.x)
                     {
-                        case var x when x >= XMaxAngle && x < ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(XMaxAngle, 0, transform.eulerAngles.z);
+                        case var x when x >= xMaxAngle && x < thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(xMaxAngle, 0, transform.eulerAngles.z);
 
                             if (!onGear1)
                             {
@@ -426,13 +410,13 @@ namespace fourtyfourty.gearController
                             onGear1 = true;
                             break;
 
-                        case var x when x <= XMaxAngle - AxisThreshold:
+                        case var x when x <= xMaxAngle - axisThreshold:
                             onGear1 = false;
                             onGear2 = false;
                             break;
 
-                        case var x when x <= 360 - XMaxAngle && x > ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(360 - XMaxAngle, 0, transform.eulerAngles.z);
+                        case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
                             if (!onGear2)
                             {
                                 Debug.Log("On Second Gear");
@@ -454,8 +438,8 @@ namespace fourtyfourty.gearController
                     Debug.Log("Here E");
                     switch (transform.eulerAngles.z)
                     {
-                        case var x when x >= ZMaxAngle && x < ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, ZMaxAngle);
+                        case var x when x >= zMaxAngle && x < thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
 
                             if (!onGear3)
                             {
@@ -466,14 +450,14 @@ namespace fourtyfourty.gearController
                             onGear3 = true;
 
                             break;
-                        case var x when x <= ZMaxAngle - AxisThreshold:
+                        case var x when x <= zMaxAngle - axisThreshold:
                             Debug.Log("Third");
                             onGear3 = false;
                             onGear4 = false;
                             break;
-                        case var x when x <= 360 - ZMaxAngle && x > ThresholdMaxCheck:
+                        case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
 
-                            transform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - ZMaxAngle);
+                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - zMaxAngle);
 
                             if (!onGear4)
                             {
@@ -491,8 +475,8 @@ namespace fourtyfourty.gearController
                     Debug.Log("Here F");
                     switch (transform.eulerAngles.x)
                     {
-                        case var x when x >= XMaxAngle && x < ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(XMaxAngle, 0, transform.eulerAngles.z);
+                        case var x when x >= xMaxAngle && x < thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(xMaxAngle, 0, transform.eulerAngles.z);
 
                             if (!onGear3)
                             {
@@ -502,12 +486,12 @@ namespace fourtyfourty.gearController
 
                             onGear3 = true;
                             break;
-                        case var x when x <= XMaxAngle - AxisThreshold:
+                        case var x when x <= xMaxAngle - axisThreshold:
                             onGear3 = false;
                             onGear4 = false;
                             break;
-                        case var x when x <= 360 - XMaxAngle && x > ThresholdMaxCheck:
-                            transform.eulerAngles = new Vector3(360 - XMaxAngle, 0, transform.eulerAngles.z);
+                        case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
+                            thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
 
                             if (!onGear4)
                             {
