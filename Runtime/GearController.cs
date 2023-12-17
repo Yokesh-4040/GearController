@@ -43,9 +43,9 @@ namespace fourtyfourty.gearController
         private Quaternion _originalRotation;
 
 
-        private const float XMaxAngle = 10;
-        private const float ZMaxAngle = 10;
-        private const float AxisThreshold = 3;
+        private const float XMaxAngle = 5;
+        private const float ZMaxAngle = 5;
+        private const float AxisThreshold = 1.5f;
         private const float ThresholdMaxCheck = 50;
 
         public bool limitedToPositiveX;
