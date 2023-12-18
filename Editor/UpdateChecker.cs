@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -17,9 +16,9 @@ public class UpdateChecker
     private static void CheckForUpdates()
     {
         string packageName = "GearController";
-        string currentVersion = "1.0.9"; // Current version of your package
+        string currentVersion = "1.0.0"; // Current version of your package
 
-        string repoPath = "GearController"; // Path to your Unity package within the project
+        string repoPath = "Packages/GearController"; // Path to your Unity package within the project
 
         string gitCommand = "git";
         string arguments = "ls-remote --tags origin";
@@ -32,7 +31,7 @@ public class UpdateChecker
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Path.GetFullPath("Packages/" + repoPath)
+            WorkingDirectory = Application.dataPath + "/../" + repoPath // Adjust the path to the "Packages" directory
         };
 
         using (Process process = new Process { StartInfo = psi })
