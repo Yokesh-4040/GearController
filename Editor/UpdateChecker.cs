@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -20,7 +21,13 @@ public class UpdateChecker
 
         string repoPath = "Packages/GearController"; // Path to your Unity package within the project
 
-        string gitCommand = "git";
+        string gitCommand = FindGitExecutable();
+        if (string.IsNullOrEmpty(gitCommand))
+        {
+            Debug.LogError("Git executable not found. Make sure Git is installed and available in your system's PATH.");
+            return;
+        }
+
         string arguments = "ls-remote --tags origin";
 
         ProcessStartInfo psi = new ProcessStartInfo
@@ -31,7 +38,7 @@ public class UpdateChecker
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Application.dataPath + "/.../" + repoPath // Adjust the path to the "Packages" directory
+            WorkingDirectory = Application.dataPath + "/../" + repoPath // Adjust the path to the "Packages" directory
         };
 
         using (Process process = new Process { StartInfo = psi })
@@ -69,6 +76,22 @@ public class UpdateChecker
                 Debug.LogWarning($"Failed to check for updates: {error}");
             }
         }
+    }
+
+    private static string FindGitExecutable()
+    {
+        // Try to find the Git executable in the system's PATH
+        string[] paths = Environment.GetEnvironmentVariable("PATH").Split(';');
+        foreach (string path in paths)
+        {
+            string gitPath = Path.Combine(path, "git.exe");
+            if (File.Exists(gitPath))
+            {
+                return gitPath;
+            }
+        }
+
+        return null;
     }
 
     private static bool IsNewVersionAvailable(string latestTag, string currentVersion)
