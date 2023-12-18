@@ -32,7 +32,7 @@ public class UpdateChecker
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Path.GetFullPath("Packages/ +" + repoPath)
+            WorkingDirectory = Path.GetFullPath("Packages/" + repoPath)
         };
 
         using (Process process = new Process { StartInfo = psi })
