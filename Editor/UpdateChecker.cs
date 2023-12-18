@@ -19,7 +19,7 @@ public class UpdateChecker
         string packageName = "GearController";
         string currentVersion = "1.0.9"; // Current version of your package
 
-        string repoPath = "FourtyFourty/GearController"; // Path to your Unity package within the project
+        string repoPath = "GearController"; // Path to your Unity package within the project
 
         string gitCommand = "git";
         string arguments = "ls-remote --tags origin";
