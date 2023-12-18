@@ -170,7 +170,7 @@ namespace fourtyfourty.gearController
             }
         }
 
-        public void NeutralCheck()
+        private void NeutralCheck()
         {
             if (gearType is GearType.PlusLiver or GearType.VerticalLiver or GearType.HorizontalLiver)
             {
@@ -192,7 +192,6 @@ namespace fourtyfourty.gearController
 
             if (!isGrabbed && !isReturning && !atOrigin)
             {
-                Debug.Log("Auto 1");
                 if (!onGear3 && !onGear4 && !onGear1 && !onGear2)
                 {
                     StartReturnToOriginalRotation();
@@ -486,6 +485,9 @@ namespace fourtyfourty.gearController
 
                             onGear2 = true;
                             break;
+                        case var x when x > 360-xMaxAngle + axisThreshold:
+                            onGear2 = false;
+                            break;
                     }
                 }
             }
@@ -528,6 +530,10 @@ namespace fourtyfourty.gearController
 
                             onGear4 = true;
                             break;
+                        case var x when x > 360 - zMaxAngle + axisThreshold:
+                            onGear4 = false;
+                            break;
+                            
                     }
                 }
 

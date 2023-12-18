@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 Version Updated
 The version number for this package has increased due to a version update of a related graphics package.
 
+## [1.0.10] - 2023-12-17
+### Fixed 
+- Fixed 2nd and 4th gears not turning off even after threshold
+- Added Update Checker
+
 ## [1.0.9] - 2023-12-17
 ### Added
 - Added Override for the auto neutral
