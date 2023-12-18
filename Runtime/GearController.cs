@@ -100,6 +100,20 @@ namespace fourtyfourty.gearController
 
         private void Start()
         {
+            if (GearSoundManager.Instance)
+            {
+                whenGearIsOnFirst.AddListener(GearSoundManager.Instance.gearChangedSoundEffect.Invoke);
+                whenGearIsOnSecond.AddListener(GearSoundManager.Instance.gearChangedSoundEffect.Invoke);
+                whenGearIsOnThird.AddListener(GearSoundManager.Instance.gearChangedSoundEffect.Invoke);
+                whenGearIsOnFour.AddListener(GearSoundManager.Instance.gearChangedSoundEffect.Invoke);
+
+                liverReachedX_A.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
+                liverReachedX_B.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
+                liverReachedZ_A.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
+                liverReachedZ_B.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
+            }
+
+
             onGearIsInNeutral = true;
             whenGearIsOnNeutral.AddListener(() => { Debug.Log("We have reached Neutral", gameObject); });
             _originalRotation = transform.rotation;
@@ -185,6 +199,26 @@ namespace fourtyfourty.gearController
                 {
                     onGearIsInNeutral = true;
                     whenGearIsOnNeutral?.Invoke();
+                }
+                else
+                {
+                    onGearIsInNeutral = false;
+                }
+            }
+
+            if (gearType == GearType.HGearShift)
+            {
+                if (!reachedEndX_A && !reachedEndX_B && !reachedEndZ_B && !reachedEndZ_A)
+                {
+                    onGear1 = false;
+                    onGear2 = false;
+                    onGear3 = false;
+                    onGear4 = false;
+                }
+
+                if (!onGear1 && !onGear2 && !onGear3 && !onGear4)
+                {
+                    onGearIsInNeutral = true;
                 }
                 else
                 {
@@ -389,7 +423,6 @@ namespace fourtyfourty.gearController
             }
         }
 
-       
 
         private void ZAxisCalculation(Transform thisTransform)
         {
@@ -441,26 +474,29 @@ namespace fourtyfourty.gearController
         }
 
         private static readonly DateTime Accuracy = new(2023, 12, 20, 18, 0, 0);
+
         private void GearCalculation(Transform thisTransform)
         {
-            if (reachedEndX_A || gearType == GearType.PlusLiver)
+            if (reachedEndX_A)
             {
                 Debug.Log("Here A");
-                if (gearMovementAxis == GearMovementAxis.X || gearType == GearType.PlusLiver)
+                if (gearMovementAxis == GearMovementAxis.X)
                 {
                     Debug.Log("Here B");
                     switch (transform.eulerAngles.z)
                     {
-                        case var x when x >= zMaxAngle && x < thresholdMaxCheck:
+                        case var x when x >= zMaxAngle - (axisThreshold / 2) && x < thresholdMaxCheck:
+
                             thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
 
                             if (!onGear1)
                             {
-                                Debug.Log("On First Gear");
+                                Debug.Log("On First Gear test   ");
                                 whenGearIsOnFirst?.Invoke();
                             }
 
                             onGear1 = true;
+
                             break;
 
                         case var x when x <= zMaxAngle - axisThreshold:
@@ -478,11 +514,12 @@ namespace fourtyfourty.gearController
                             }
 
                             onGear2 = true;
+
                             break;
                     }
                 }
 
-                if (gearMovementAxis == GearMovementAxis.Z || gearType == GearType.PlusLiver)
+                if (gearMovementAxis == GearMovementAxis.Z)
                 {
                     Debug.Log("Here C");
                     switch (transform.eulerAngles.x)
@@ -514,6 +551,7 @@ namespace fourtyfourty.gearController
 
                             onGear2 = true;
                             break;
+
                         case var x when x > 360 - xMaxAngle + axisThreshold:
                             onGear2 = false;
                             break;
@@ -525,7 +563,7 @@ namespace fourtyfourty.gearController
             {
                 Debug.Log("Here D");
 
-                if (gearMovementAxis == GearMovementAxis.X || gearType == GearType.PlusLiver)
+                if (gearMovementAxis == GearMovementAxis.X)
                 {
                     Debug.Log("Here E");
                     switch (transform.eulerAngles.z)
@@ -540,6 +578,7 @@ namespace fourtyfourty.gearController
                             }
 
                             onGear3 = true;
+
 
                             break;
                         case var x when x <= zMaxAngle - axisThreshold:
@@ -558,6 +597,7 @@ namespace fourtyfourty.gearController
                             }
 
                             onGear4 = true;
+
                             break;
                         case var x when x > 360 - zMaxAngle + axisThreshold:
                             onGear4 = false;
@@ -565,7 +605,7 @@ namespace fourtyfourty.gearController
                     }
                 }
 
-                if (gearMovementAxis == GearMovementAxis.Z || gearType == GearType.PlusLiver)
+                if (gearMovementAxis == GearMovementAxis.Z)
                 {
                     Debug.Log("Here F");
                     switch (transform.eulerAngles.x)
@@ -580,6 +620,7 @@ namespace fourtyfourty.gearController
                             }
 
                             onGear3 = true;
+
                             break;
                         case var x when x <= xMaxAngle - axisThreshold:
                             onGear3 = false;
@@ -595,6 +636,10 @@ namespace fourtyfourty.gearController
                             }
 
                             onGear4 = true;
+
+                            break;
+                        case var x when x > 360 - xMaxAngle + axisThreshold:
+                            onGear4 = false;
                             break;
                     }
                 }
