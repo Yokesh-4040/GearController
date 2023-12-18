@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -31,7 +32,7 @@ public class UpdateChecker
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Application.dataPath + "/" + repoPath
+            WorkingDirectory = Path.GetFullPath("Packages/ +" + repoPath)
         };
 
         using (Process process = new Process { StartInfo = psi })
