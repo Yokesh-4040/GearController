@@ -31,7 +31,7 @@ public class UpdateChecker
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = Application.dataPath + "/../" + repoPath // Adjust the path to the "Packages" directory
+            WorkingDirectory = Application.dataPath + "/.../" + repoPath // Adjust the path to the "Packages" directory
         };
 
         using (Process process = new Process { StartInfo = psi })
