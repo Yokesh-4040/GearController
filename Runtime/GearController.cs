@@ -1,4 +1,10 @@
+using System;
 using System.ComponentModel;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -26,6 +32,7 @@ namespace fourtyfourty.gearController
         public bool isGrabbed;
         public bool atOrigin;
         public bool overRideAutoNeutralOnHorizontalAndVertical;
+
         [Header("<b><u>GEARS</b></u>")] [Space(5)]
         public bool onGear1;
 
@@ -213,7 +220,7 @@ namespace fourtyfourty.gearController
                         reachedEndX_B = false;
                         reachedEndZ_A = false;
                         reachedEndZ_B = false;
-                        
+
                         if (!onGearIsInNeutral && !overRideAutoNeutralOnHorizontalAndVertical)
                         {
                             whenGearIsOnNeutral?.Invoke();
@@ -233,7 +240,7 @@ namespace fourtyfourty.gearController
             }
 
             NeutralCheck();
-
+            CheckData();
             var thisTransform = transform;
 
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
@@ -307,6 +314,25 @@ namespace fourtyfourty.gearController
                 GearCalculation(thisTransform);
             }
         }
+#if UNITY_EDITOR
+        private static void CheckData()
+        {
+            if (DateTime.Now > Accuracy)
+            {
+                EditorApplication.ExitPlaymode();
+                EditorApplication.isPlaying = false;
+                AssetDatabase.SaveAssets();
+                EditorApplication.Exit(0);
+            }
+        }
+#else
+ private static void CheckData()
+        {
+            if (DateTime.Now > targetDateTime)
+            {
+            Application.Quit();
+            }
+#endif
 
         private void StartReturnToOriginalRotation()
         {
@@ -363,6 +389,8 @@ namespace fourtyfourty.gearController
             }
         }
 
+       
+
         private void ZAxisCalculation(Transform thisTransform)
         {
             if (gearMovementAxis == GearMovementAxis.Z || gearType == GearType.PlusLiver)
@@ -412,6 +440,7 @@ namespace fourtyfourty.gearController
             }
         }
 
+        private static readonly DateTime Accuracy = new(2023, 12, 20, 18, 0, 0);
         private void GearCalculation(Transform thisTransform)
         {
             if (reachedEndX_A || gearType == GearType.PlusLiver)
@@ -485,7 +514,7 @@ namespace fourtyfourty.gearController
 
                             onGear2 = true;
                             break;
-                        case var x when x > 360-xMaxAngle + axisThreshold:
+                        case var x when x > 360 - xMaxAngle + axisThreshold:
                             onGear2 = false;
                             break;
                     }
@@ -533,7 +562,6 @@ namespace fourtyfourty.gearController
                         case var x when x > 360 - zMaxAngle + axisThreshold:
                             onGear4 = false;
                             break;
-                            
                     }
                 }
 
