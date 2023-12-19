@@ -304,14 +304,14 @@ namespace fourtyfourty.gearController
                         {
                             case var _ when eulerAngles1.x > middleThreshold && angles.x < 50:
                                 angles = new Vector3(angles.x, angles.y, 0);
-                                transform.localRotation =Quaternion.Euler(angles);
+                                transform.localRotation = Quaternion.Euler(angles);
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to X");
                                 break;
 
                             case var _ when eulerAngles1.x < 360 - middleThreshold && eulerAngles1.x > 50:
                                 angles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 0);
-                                transform.localRotation =Quaternion.Euler(angles);
+                                transform.localRotation = Quaternion.Euler(angles);
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to -X");
                                 break;
@@ -404,24 +404,37 @@ namespace fourtyfourty.gearController
                     {
                         return;
                     }
+
                     Debug.Log("Test 1");
                     if (limitedToNegativeZ && limitedToPositiveZ)
                     {
                         return;
                     }
+
                     Debug.Log("Test 2");
                     if (reachedEndZ_A || reachedEndZ_B)
                     {
                         return;
                     }
+
                     Debug.Log("Test 3");
                 }
+
                 switch (transform.localEulerAngles.x)
                 {
                     case var x when x >= xMaxAngle && x < thresholdMaxCheck:
-                        
-                        gearRotation.localRotation = Quaternion.Euler(xMaxAngle, transform.localEulerAngles.y,
-                            0);
+
+                        if (gearType == GearType.PlusLiver)
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(xMaxAngle, transform.localEulerAngles.y,
+                                0);
+                        }
+                        else
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(xMaxAngle, transform.localEulerAngles.y,
+                                transform.localEulerAngles.z);
+                        }
+
                         if (!reachedEndX_B)
                         {
                             Debug.Log("Reach B End");
@@ -437,8 +450,17 @@ namespace fourtyfourty.gearController
 
                         break;
                     case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
-                        gearRotation.localRotation = Quaternion.Euler(360 - xMaxAngle, transform.localEulerAngles.y,
-                           0);
+                        if (gearType == GearType.PlusLiver)
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(360 - xMaxAngle, transform.localEulerAngles.y,
+                                0);
+                        }
+                        else
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(360 - xMaxAngle, transform.localEulerAngles.y,
+                                transform.localEulerAngles.z);
+                        }
+
                         if (!reachedEndX_A)
                         {
                             Debug.Log("Reach A End");
@@ -467,24 +489,36 @@ namespace fourtyfourty.gearController
                     {
                         return;
                     }
+
                     Debug.Log("Test 12");
                     if (limitedToNegativeX && limitedToPositiveX)
                     {
                         return;
                     }
+
                     Debug.Log("Test 13");
                     if (reachedEndX_A || reachedEndX_B)
                     {
                         return;
                     }
+
                     Debug.Log("Test 14");
                 }
-                
+
                 switch (transform.localEulerAngles.z)
                 {
                     case var x when x >= zMaxAngle && x < thresholdMaxCheck:
-                        gearRotation.localRotation = Quaternion.Euler(0,
-                            transform.localEulerAngles.y, zMaxAngle);
+                        if (gearType == GearType.PlusLiver)
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(0,
+                                transform.localEulerAngles.y, zMaxAngle);
+                        }
+                        else
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
+                                transform.localEulerAngles.y, zMaxAngle);
+                        }
+
                         if (!reachedEndZ_B)
                         {
                             Debug.Log("Reach B End Z");
@@ -502,8 +536,17 @@ namespace fourtyfourty.gearController
                         break;
 
                     case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
-                        gearRotation.localRotation = Quaternion.Euler(0,
-                            transform.localEulerAngles.y, 360 - xMaxAngle);
+                        if (gearType == GearType.PlusLiver)
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(0,
+                                transform.localEulerAngles.y, 360 - xMaxAngle);
+                        }
+                        else
+                        {
+                            gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
+                                transform.localEulerAngles.y, zMaxAngle);
+                        }
+
                         if (!reachedEndZ_A)
                         {
                             Debug.Log("Reach A End Z");
