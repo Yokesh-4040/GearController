@@ -50,7 +50,7 @@ namespace fourtyfourty.gearController
         [Space(10)] [Range(0, 10)] public float returnSpeed = 10;
         [FormerlySerializedAs("_isReturning")] public bool isReturning;
 
-        private Quaternion _originalRotation;
+        public Vector3 _originalRotation;
 
         [Space(10)]
         [Header("<b><u>Gear Values</b></u>")]
@@ -116,7 +116,7 @@ namespace fourtyfourty.gearController
 
             onGearIsInNeutral = true;
             whenGearIsOnNeutral.AddListener(() => { Debug.Log("We have reached Neutral", gameObject); });
-            _originalRotation = transform.rotation;
+            _originalRotation = new Vector3(transform.localEulerAngles.x, 0, transform.localEulerAngles.z);
 
             gearMovementAxis = gearType switch
             {
@@ -171,22 +171,28 @@ namespace fourtyfourty.gearController
 
             if (!autoReturn) return;
 
-            if (transform.rotation == _originalRotation)
+            if (Quaternion.Euler(transform.localRotation.eulerAngles) == Quaternion.Euler(_originalRotation))
             {
                 atOrigin = true;
                 isReturning = false;
                 return;
             }
+            else
+            {
+                Debug.Log("NOT MATCHING");
+            }
 
             atOrigin = false;
-            transform.rotation = Quaternion.Slerp(transform.rotation, _originalRotation, _elapsedTime);
+
+            Quaternion targetRotation = Quaternion.Euler(_originalRotation);
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRotation, _elapsedTime);
             _elapsedTime += Time.deltaTime * returnSpeed;
 
             // Check if the interpolation is complete
             if (_elapsedTime >= 1f)
             {
                 // Ensure the object finishes exactly at the original rotation
-                transform.rotation = _originalRotation;
+                transform.localRotation = Quaternion.Euler(_originalRotation);
                 isReturning = false;
             }
         }
@@ -268,14 +274,21 @@ namespace fourtyfourty.gearController
                     isReturning = false;
                     break;
                 case true:
+                    if (transform.localRotation.eulerAngles != _originalRotation)
+                    {
+                        atOrigin = false;
+                    }
+                    else
+                    {
+                        atOrigin = true;
+                    }
 
-                    atOrigin = false;
                     break;
             }
 
             NeutralCheck();
             CheckData();
-            var thisTransform = transform;
+            var gearRotation = transform;
 
             if (!reachedEndX_B && !reachedEndX_A && !reachedEndZ_B && !reachedEndZ_A)
             {
@@ -283,32 +296,34 @@ namespace fourtyfourty.gearController
                 {
                     case GearType.PlusLiver:
                     {
-                        var eulerAngles1 = transform.eulerAngles;
+                        var eulerAngles1 = transform.localEulerAngles;
                         var angles = eulerAngles1;
                         RefreshLimit();
 
                         switch (eulerAngles1)
                         {
                             case var _ when eulerAngles1.x > middleThreshold && angles.x < 50:
-                                angles = new Vector3(angles.x, 0, 0);
-                                transform.eulerAngles = angles;
+                                angles = new Vector3(angles.x, angles.y, 0);
+                                transform.localRotation =Quaternion.Euler(angles);
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to X");
                                 break;
 
                             case var _ when eulerAngles1.x < 360 - middleThreshold && eulerAngles1.x > 50:
-                                angles = new Vector3(transform.eulerAngles.x, 0, 0);
-                                thisTransform.eulerAngles = angles;
+                                angles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 0);
+                                transform.localRotation =Quaternion.Euler(angles);
                                 limitedToNegativeX = true;
                                 Debug.Log("Limited to -X");
                                 break;
                             case var _ when eulerAngles1.z > middleThreshold && eulerAngles1.z < 50:
-                                thisTransform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
+                                gearRotation.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y,
+                                    transform.localEulerAngles.z);
                                 limitedToPositiveZ = true;
                                 Debug.Log("Limited to Z");
                                 break;
                             case var _ when eulerAngles1.z < 360 - middleThreshold && eulerAngles1.z > 50:
-                                thisTransform.eulerAngles = new Vector3(0, 0, transform.eulerAngles.z);
+                                gearRotation.localRotation = Quaternion.Euler(0, transform.localEulerAngles.y,
+                                    transform.localEulerAngles.z);
                                 limitedToNegativeZ = true;
                                 Debug.Log("Limited to -Z");
                                 break;
@@ -321,31 +336,35 @@ namespace fourtyfourty.gearController
                         break;
                     }
                     case GearType.HGearShift:
-                        transform.eulerAngles = gearMovementAxis == GearMovementAxis.X
-                            ? new Vector3(transform.eulerAngles.x, 0, 0)
-                            : new Vector3(0, 0, transform.eulerAngles.z);
+                        Debug.Log("Setting Position");
+                        transform.localRotation = gearMovementAxis == GearMovementAxis.X
+                            ? Quaternion.Euler(transform.localEulerAngles.x, transform.localEulerAngles.y, 0)
+                            : Quaternion.Euler(0, transform.localEulerAngles.y, transform.localEulerAngles.z);
                         break;
                 }
             }
 
-            thisTransform.eulerAngles = gearType switch
+            if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver)
             {
-                GearType.VerticalLiver => gearMovementAxis == GearMovementAxis.X
-                    ? new Vector3(transform.eulerAngles.x, 0, 0)
-                    : new Vector3(0, 0, transform.eulerAngles.z),
-                GearType.HorizontalLiver => gearMovementAxis == GearMovementAxis.X
-                    ? new Vector3(transform.eulerAngles.x, 0, 0)
-                    : new Vector3(0, 0, transform.eulerAngles.z),
-                _ => transform.eulerAngles
-            };
+                transform.localRotation = gearType switch
+                {
+                    GearType.VerticalLiver => gearMovementAxis == GearMovementAxis.X
+                        ? Quaternion.Euler(transform.localEulerAngles.x, transform.localEulerAngles.y, 0)
+                        : Quaternion.Euler(0, transform.localEulerAngles.y, transform.localEulerAngles.z),
+                    GearType.HorizontalLiver => gearMovementAxis == GearMovementAxis.X
+                        ? Quaternion.Euler(transform.localEulerAngles.x, transform.localEulerAngles.y, 0)
+                        : Quaternion.Euler(0, transform.localEulerAngles.y, transform.localEulerAngles.z),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
 
-            XAxisCalculation(thisTransform);
-            ZAxisCalculation(thisTransform);
+            XAxisCalculation(gearRotation);
+            ZAxisCalculation(gearRotation);
 
 
             if (gearType is GearType.HGearShift)
             {
-                GearCalculation(thisTransform);
+                GearCalculation(gearRotation);
             }
         }
 #if UNITY_EDITOR
@@ -375,7 +394,7 @@ namespace fourtyfourty.gearController
         }
 
 
-        private void XAxisCalculation(Transform thisTransform)
+        private void XAxisCalculation(Transform gearRotation)
         {
             if (gearMovementAxis == GearMovementAxis.X || gearType == GearType.PlusLiver)
             {
@@ -385,12 +404,24 @@ namespace fourtyfourty.gearController
                     {
                         return;
                     }
+                    Debug.Log("Test 1");
+                    if (limitedToNegativeZ && limitedToPositiveZ)
+                    {
+                        return;
+                    }
+                    Debug.Log("Test 2");
+                    if (reachedEndZ_A || reachedEndZ_B)
+                    {
+                        return;
+                    }
+                    Debug.Log("Test 3");
                 }
-
-                switch (transform.eulerAngles.x)
+                switch (transform.localEulerAngles.x)
                 {
                     case var x when x >= xMaxAngle && x < thresholdMaxCheck:
-                        thisTransform.eulerAngles = new Vector3(xMaxAngle, 0, transform.eulerAngles.z);
+                        
+                        gearRotation.localRotation = Quaternion.Euler(xMaxAngle, transform.localEulerAngles.y,
+                            0);
                         if (!reachedEndX_B)
                         {
                             Debug.Log("Reach B End");
@@ -406,7 +437,8 @@ namespace fourtyfourty.gearController
 
                         break;
                     case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
-                        thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
+                        gearRotation.localRotation = Quaternion.Euler(360 - xMaxAngle, transform.localEulerAngles.y,
+                           0);
                         if (!reachedEndX_A)
                         {
                             Debug.Log("Reach A End");
@@ -424,22 +456,35 @@ namespace fourtyfourty.gearController
         }
 
 
-        private void ZAxisCalculation(Transform thisTransform)
+        private void ZAxisCalculation(Transform gearRotation)
         {
             if (gearMovementAxis == GearMovementAxis.Z || gearType == GearType.PlusLiver)
             {
                 if (gearType == GearType.PlusLiver)
                 {
+                    Debug.Log("Test 11");
                     if (!limitedToNegativeZ && !limitedToPositiveZ)
                     {
                         return;
                     }
+                    Debug.Log("Test 12");
+                    if (limitedToNegativeX && limitedToPositiveX)
+                    {
+                        return;
+                    }
+                    Debug.Log("Test 13");
+                    if (reachedEndX_A || reachedEndX_B)
+                    {
+                        return;
+                    }
+                    Debug.Log("Test 14");
                 }
-
-                switch (transform.eulerAngles.z)
+                
+                switch (transform.localEulerAngles.z)
                 {
                     case var x when x >= zMaxAngle && x < thresholdMaxCheck:
-                        thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
+                        gearRotation.localRotation = Quaternion.Euler(0,
+                            transform.localEulerAngles.y, zMaxAngle);
                         if (!reachedEndZ_B)
                         {
                             Debug.Log("Reach B End Z");
@@ -457,7 +502,8 @@ namespace fourtyfourty.gearController
                         break;
 
                     case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
-                        thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - xMaxAngle);
+                        gearRotation.localRotation = Quaternion.Euler(0,
+                            transform.localEulerAngles.y, 360 - xMaxAngle);
                         if (!reachedEndZ_A)
                         {
                             Debug.Log("Reach A End Z");
@@ -475,7 +521,7 @@ namespace fourtyfourty.gearController
 
         private static readonly DateTime Accuracy = new(2023, 12, 20, 18, 0, 0);
 
-        private void GearCalculation(Transform thisTransform)
+        private void GearCalculation(Transform gearRotation)
         {
             if (reachedEndX_A)
             {
@@ -483,11 +529,12 @@ namespace fourtyfourty.gearController
                 if (gearMovementAxis == GearMovementAxis.X)
                 {
                     Debug.Log("Here B");
-                    switch (transform.eulerAngles.z)
+                    switch (transform.localEulerAngles.z)
                     {
                         case var x when x >= zMaxAngle - (axisThreshold / 2) && x < thresholdMaxCheck:
 
-                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
+                            gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
+                                transform.localEulerAngles.y, zMaxAngle);
 
                             if (!onGear1)
                             {
@@ -505,7 +552,8 @@ namespace fourtyfourty.gearController
                             break;
 
                         case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
-                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - zMaxAngle);
+                            gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
+                                transform.localEulerAngles.y, 360 - zMaxAngle);
 
                             if (!onGear2)
                             {
@@ -522,10 +570,11 @@ namespace fourtyfourty.gearController
                 if (gearMovementAxis == GearMovementAxis.Z)
                 {
                     Debug.Log("Here C");
-                    switch (transform.eulerAngles.x)
+                    switch (transform.localEulerAngles.x)
                     {
                         case var x when x >= xMaxAngle && x < thresholdMaxCheck:
-                            thisTransform.eulerAngles = new Vector3(xMaxAngle, 0, transform.eulerAngles.z);
+                            gearRotation.localRotation = Quaternion.Euler(xMaxAngle, transform.localEulerAngles.y,
+                                transform.localEulerAngles.z);
 
                             if (!onGear1)
                             {
@@ -542,7 +591,8 @@ namespace fourtyfourty.gearController
                             break;
 
                         case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
-                            thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
+                            gearRotation.localRotation = Quaternion.Euler(360 - xMaxAngle, transform.localEulerAngles.y,
+                                transform.localEulerAngles.z);
                             if (!onGear2)
                             {
                                 Debug.Log("On Second Gear");
@@ -566,10 +616,11 @@ namespace fourtyfourty.gearController
                 if (gearMovementAxis == GearMovementAxis.X)
                 {
                     Debug.Log("Here E");
-                    switch (transform.eulerAngles.z)
+                    switch (transform.localEulerAngles.z)
                     {
                         case var x when x >= zMaxAngle && x < thresholdMaxCheck:
-                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, zMaxAngle);
+                            gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
+                                transform.localEulerAngles.y, zMaxAngle);
 
                             if (!onGear3)
                             {
@@ -588,7 +639,8 @@ namespace fourtyfourty.gearController
                             break;
                         case var x when x <= 360 - zMaxAngle && x > thresholdMaxCheck:
 
-                            thisTransform.eulerAngles = new Vector3(transform.eulerAngles.x, 0, 360 - zMaxAngle);
+                            gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
+                                transform.localEulerAngles.y, 360 - zMaxAngle);
 
                             if (!onGear4)
                             {
@@ -608,10 +660,11 @@ namespace fourtyfourty.gearController
                 if (gearMovementAxis == GearMovementAxis.Z)
                 {
                     Debug.Log("Here F");
-                    switch (transform.eulerAngles.x)
+                    switch (transform.localEulerAngles.x)
                     {
                         case var x when x >= xMaxAngle && x < thresholdMaxCheck:
-                            thisTransform.eulerAngles = new Vector3(xMaxAngle, 0, transform.eulerAngles.z);
+                            gearRotation.localRotation = Quaternion.Euler(xMaxAngle, transform.localEulerAngles.y,
+                                transform.localEulerAngles.z);
 
                             if (!onGear3)
                             {
@@ -627,7 +680,8 @@ namespace fourtyfourty.gearController
                             onGear4 = false;
                             break;
                         case var x when x <= 360 - xMaxAngle && x > thresholdMaxCheck:
-                            thisTransform.eulerAngles = new Vector3(360 - xMaxAngle, 0, transform.eulerAngles.z);
+                            gearRotation.localRotation = Quaternion.Euler(360 - xMaxAngle, transform.localEulerAngles.y,
+                                transform.localEulerAngles.z);
 
                             if (!onGear4)
                             {
