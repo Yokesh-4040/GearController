@@ -88,7 +88,9 @@ namespace fourtyfourty.gearController
         public UnityEvent liverReachedX_A = new();
         public UnityEvent liverReachedX_B = new();
 
-
+        public UnityEvent onGrabbed = new();
+        public UnityEvent onReleased = new();
+        public UnityEvent onOrigin = new();
         private void RefreshLimit()
         {
             limitedToPositiveX = false;
@@ -97,7 +99,7 @@ namespace fourtyfourty.gearController
             limitedToNegativeZ = false;
             noLimit = false;
         }
-
+        
         private void Start()
         {
             if (GearSoundManager.Instance)
@@ -111,6 +113,7 @@ namespace fourtyfourty.gearController
                 liverReachedX_B.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
                 liverReachedZ_A.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
                 liverReachedZ_B.AddListener(GearSoundManager.Instance.edgeReachedSoundEffect.Invoke);
+                onOrigin.AddListener(GearSoundManager.Instance.gearChangedSoundEffect.Invoke);
             }
 
 
@@ -233,8 +236,35 @@ namespace fourtyfourty.gearController
             }
         }
 
+        public bool grabbed;
+        public bool released;
+        public bool origin;
         public void Update()
         {
+            if (isGrabbed && !grabbed)
+            {
+                onGrabbed?.Invoke();
+                grabbed = true;
+                released = false;
+            }
+
+            if (!isGrabbed && !released)
+            {
+                onReleased?.Invoke();
+                grabbed = false;
+                released = true;
+            }
+
+            if (atOrigin && !origin)
+            {
+                onOrigin?.Invoke();
+                origin = true;
+            }
+
+            if (!atOrigin && origin)
+            {
+                origin = false;
+            }
             ReturnToOrigin();
 
             if (!isGrabbed && !isReturning && !atOrigin)
@@ -249,7 +279,7 @@ namespace fourtyfourty.gearController
                     StartReturnToOriginalRotation();
                 }
             }
-
+            
             switch (isGrabbed)
             {
                 case false:
@@ -539,12 +569,12 @@ namespace fourtyfourty.gearController
                         if (gearType == GearType.PlusLiver)
                         {
                             gearRotation.localRotation = Quaternion.Euler(0,
-                                transform.localEulerAngles.y, 360 - xMaxAngle);
+                                transform.localEulerAngles.y, 360 - zMaxAngle);
                         }
                         else
                         {
                             gearRotation.localRotation = Quaternion.Euler(transform.localEulerAngles.x,
-                                transform.localEulerAngles.y, zMaxAngle);
+                                transform.localEulerAngles.y, 360 - zMaxAngle);
                         }
 
                         if (!reachedEndZ_A)
