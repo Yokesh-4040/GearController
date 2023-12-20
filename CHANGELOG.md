@@ -12,6 +12,7 @@ The version number for this package has increased due to a version update of a r
 ## [1.1.1] - 2023-12-19
 ### Fixes
 - [Major Update] Changed all the calculation from Global to local to avoid any unexcpected result when the gears are in moving vechicle.
+- minor calculation fixes
 
 ## [1.0.11] - 2023-12-18
 ### Fixed 
