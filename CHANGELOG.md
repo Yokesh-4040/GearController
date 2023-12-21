@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 Version Updated
 The version number for this package has increased due to a version update of a related graphics package.
 
+## [1.1.2] - 2023-12-20
+### Fixes
+- minor bug fix
+
 ## [1.1.1] - 2023-12-19
 ### Fixes
 - [Major Update] Changed all the calculation from Global to local to avoid any unexcpected result when the gears are in moving vechicle.

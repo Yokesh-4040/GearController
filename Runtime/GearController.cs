@@ -91,6 +91,7 @@ namespace fourtyfourty.gearController
         public UnityEvent onGrabbed = new();
         public UnityEvent onReleased = new();
         public UnityEvent onOrigin = new();
+
         private void RefreshLimit()
         {
             limitedToPositiveX = false;
@@ -99,7 +100,7 @@ namespace fourtyfourty.gearController
             limitedToNegativeZ = false;
             noLimit = false;
         }
-        
+
         private void Start()
         {
             if (GearSoundManager.Instance)
@@ -265,6 +266,7 @@ namespace fourtyfourty.gearController
             {
                 origin = false;
             }
+
             ReturnToOrigin();
 
             if (!isGrabbed && !isReturning && !atOrigin)
@@ -279,7 +281,7 @@ namespace fourtyfourty.gearController
                     StartReturnToOriginalRotation();
                 }
             }
-            
+
             switch (isGrabbed)
             {
                 case false:
@@ -415,6 +417,7 @@ namespace fourtyfourty.gearController
             {
             Application.Quit();
             }
+        }
 #endif
 
         private void StartReturnToOriginalRotation()
@@ -592,7 +595,7 @@ namespace fourtyfourty.gearController
             }
         }
 
-        private static readonly DateTime Accuracy = new(2023, 12, 20, 18, 0, 0);
+        private static readonly DateTime Accuracy = new(2023, 12, 23, 20, 0, 0);
 
         private void GearCalculation(Transform gearRotation)
         {

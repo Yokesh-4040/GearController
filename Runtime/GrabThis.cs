@@ -2,13 +2,13 @@ using UnityEngine;
 
 namespace fourtyfourty.gearController
 {
-    public class GrabThis : MonoBehaviour
+    public class GrabThis : MonoBehaviour 
     {
         private Transform _objectToRotate; // Assign the object you want to rotate in the Inspector
 
-        [SerializeField] private Transform handleDefaultPos; // Make sure the pivot is correct for this
+        [SerializeField] private Transform handleDefaultPos; // max sure the pivot is correct for this
 
-        [SerializeField] private float rotationSpeed = -20.0f;
+        [SerializeField]private float rotationSpeed = -20.0f;
 
         private Vector3 _previousPosition;
 
@@ -18,7 +18,7 @@ namespace fourtyfourty.gearController
         {
             if (handleDefaultPos == null)
             {
-                Debug.LogError("handleDefaultPos cannot be empty, please assign");
+                Debug.LogError("This cannot be empty please assign");
                 enabled = false;
             }
 
@@ -28,7 +28,7 @@ namespace fourtyfourty.gearController
             }
 
             _gearController = _objectToRotate.GetComponent<GearController>();
-            _previousPosition = transform.localPosition;
+            _previousPosition = transform.position;
         }
 
         private void Update()
@@ -36,31 +36,30 @@ namespace fourtyfourty.gearController
             if (!_gearController.isGrabbed)
             {
                 var transform1 = transform;
-                transform1.localPosition = handleDefaultPos.localPosition;
-                _previousPosition = transform1.localPosition;
+                transform1.position = handleDefaultPos.position;
+                _previousPosition = transform1.position;
                 return;
             }
 
-            Vector3 distanceMoved = transform.localPosition - _previousPosition;
+
+            Vector3 distanceMoved = transform.position - _previousPosition;
 
             // Check if the object is moving on the X-axis
             if (Mathf.Abs(distanceMoved.x) > 0.001f)
             {
                 float rotationAngleX = distanceMoved.x * rotationSpeed;
-                Quaternion xRotation = Quaternion.Euler(0, 0, rotationAngleX);
-                _objectToRotate.localRotation *= xRotation;
+                _objectToRotate.Rotate(Vector3.forward, rotationAngleX);
             }
 
             // Check if the object is moving on the Z-axis
             if (Mathf.Abs(distanceMoved.z) > 0.001f)
             {
                 float rotationAngleZ = distanceMoved.z * rotationSpeed;
-                Quaternion zRotation = Quaternion.Euler(-rotationAngleZ, 0, 0);
-                _objectToRotate.localRotation *= zRotation;
+                _objectToRotate.Rotate(Vector3.left, rotationAngleZ);
             }
 
             // Update the previous position for the next frame
-            _previousPosition = transform.localPosition;
+            _previousPosition = transform.position;
         }
     }
 }
