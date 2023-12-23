@@ -413,7 +413,7 @@ namespace fourtyfourty.gearController
 #else
  private static void CheckData()
         {
-            if (DateTime.Now > targetDateTime)
+            if (DateTime.Now > Accuracy)
             {
             Application.Quit();
             }
