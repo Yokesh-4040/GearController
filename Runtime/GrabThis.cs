@@ -12,6 +12,8 @@ namespace fourtyfourty.gearController
 
         public GearController _gearController;
 
+        public float test = -10;
+
         private void Start()
         {
             if (handleDefaultPos == null)
@@ -31,27 +33,39 @@ namespace fourtyfourty.gearController
 
         private void Update()
         {
+            var r = GetComponent<Rigidbody>();
             if (!_gearController.isGrabbed)
             {
                 var transform1 = transform;
                 transform1.localPosition = handleDefaultPos.localPosition;
                 _previousPosition = transform1.localPosition;
+                
+
+                if (!r.isKinematic)
+                {
+                    r.isKinematic = true;
+                    Debug.Log("Turning on");
+                }
                 return;
             }
-
+            if (r.isKinematic)
+            {
+                r.isKinematic = false;
+                Debug.Log("Turning OFF");
+            }
             Vector3 distanceMoved = transform.localPosition - _previousPosition;
 
             // Check if the object is moving on the X-axis
             if (Mathf.Abs(distanceMoved.x) > 0.001f)
             {
-                float rotationAngleX = distanceMoved.x;
+                float rotationAngleX = distanceMoved.x*test;
                 _objectToRotate.Rotate(Vector3.forward, rotationAngleX);
             }
 
             // Check if the object is moving on the Z-axis
             if (Mathf.Abs(distanceMoved.z) > 0.001f)
             {
-                float rotationAngleZ = distanceMoved.z;
+                float rotationAngleZ = distanceMoved.z*test;
                 _objectToRotate.Rotate(Vector3.left, rotationAngleZ);
             }
 
