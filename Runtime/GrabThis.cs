@@ -28,21 +28,20 @@ namespace fourtyfourty.gearController
             }
 
             _gearController = _objectToRotate.GetComponent<GearController>();
-            _previousPosition = transform.position;
+            _previousPosition = transform.localPosition;
         }
 
         private void Update()
         {
             if (!_gearController.isGrabbed)
             {
-                var transform1 = transform;
-                transform1.position = handleDefaultPos.position;
-                _previousPosition = transform1.position;
+                transform.localPosition = handleDefaultPos.localPosition;
+                _previousPosition = transform.localPosition;
                 return;
             }
 
 
-            Vector3 distanceMoved = transform.position - _previousPosition;
+            Vector3 distanceMoved = transform.localPosition - _previousPosition;
 
             // Check if the object is moving on the X-axis
             if (Mathf.Abs(distanceMoved.x) > 0.001f)
@@ -59,7 +58,7 @@ namespace fourtyfourty.gearController
             }
 
             // Update the previous position for the next frame
-            _previousPosition = transform.position;
+            _previousPosition = transform.localPosition;
         }
     }
 }
