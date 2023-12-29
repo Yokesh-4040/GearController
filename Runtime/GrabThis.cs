@@ -8,8 +8,6 @@ namespace fourtyfourty.gearController
 
         [SerializeField] private Transform handleDefaultPos; // max sure the pivot is correct for this
 
-        [SerializeField]private float rotationSpeed = -20.0f;
-
         private Vector3 _previousPosition;
 
         public GearController _gearController;
@@ -35,25 +33,25 @@ namespace fourtyfourty.gearController
         {
             if (!_gearController.isGrabbed)
             {
-                transform.localPosition = handleDefaultPos.localPosition;
-                _previousPosition = transform.localPosition;
+                var transform1 = transform;
+                transform1.localPosition = handleDefaultPos.localPosition;
+                _previousPosition = transform1.localPosition;
                 return;
             }
-
 
             Vector3 distanceMoved = transform.localPosition - _previousPosition;
 
             // Check if the object is moving on the X-axis
             if (Mathf.Abs(distanceMoved.x) > 0.001f)
             {
-                float rotationAngleX = distanceMoved.x * rotationSpeed;
+                float rotationAngleX = distanceMoved.x;
                 _objectToRotate.Rotate(Vector3.forward, rotationAngleX);
             }
 
             // Check if the object is moving on the Z-axis
             if (Mathf.Abs(distanceMoved.z) > 0.001f)
             {
-                float rotationAngleZ = distanceMoved.z * rotationSpeed;
+                float rotationAngleZ = distanceMoved.z;
                 _objectToRotate.Rotate(Vector3.left, rotationAngleZ);
             }
 
