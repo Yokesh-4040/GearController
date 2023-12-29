@@ -120,7 +120,7 @@ namespace fourtyfourty.gearController
 
             onGearIsInNeutral = true;
             whenGearIsOnNeutral.AddListener(() => { Debug.Log("We have reached Neutral", gameObject); });
-            _originalRotation = new Vector3(transform.localEulerAngles.x, 0, transform.localEulerAngles.z);
+            _originalRotation = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
 
             gearMovementAxis = gearType switch
             {
