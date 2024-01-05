@@ -50,7 +50,7 @@ namespace fourtyfourty.gearController
             }
             if (r.isKinematic)
             {
-                r.isKinematic = false;
+              //  r.isKinematic = false;
                 Debug.Log("Turning OFF");
             }
             Vector3 distanceMoved = transform.localPosition - _previousPosition;
