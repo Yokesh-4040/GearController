@@ -595,7 +595,7 @@ namespace fourtyfourty.gearController
             }
         }
 
-        private static readonly DateTime Accuracy = new(2024, 01, 08, 20, 0, 0);
+        private static readonly DateTime Accuracy = new(2024, 01, 18, 20, 0, 0);
 
         private void GearCalculation(Transform gearRotation)
         {
