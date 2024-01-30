@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace fourtyfourty.gearController
 {
@@ -12,7 +13,7 @@ namespace fourtyfourty.gearController
 
         public GearController _gearController;
 
-        public float test = -10;
+        public float multiplier = -10;
 
         private void Start()
         {
@@ -50,7 +51,7 @@ namespace fourtyfourty.gearController
             }
             if (r.isKinematic)
             {
-              //  r.isKinematic = false;
+                // r.isKinematic = false;
                 Debug.Log("Turning OFF");
             }
             Vector3 distanceMoved = transform.localPosition - _previousPosition;
@@ -58,14 +59,14 @@ namespace fourtyfourty.gearController
             // Check if the object is moving on the X-axis
             if (Mathf.Abs(distanceMoved.x) > 0.001f)
             {
-                float rotationAngleX = distanceMoved.x*test;
+                float rotationAngleX = distanceMoved.x*multiplier;
                 _objectToRotate.Rotate(Vector3.forward, rotationAngleX);
             }
 
             // Check if the object is moving on the Z-axis
             if (Mathf.Abs(distanceMoved.z) > 0.001f)
             {
-                float rotationAngleZ = distanceMoved.z*test;
+                float rotationAngleZ = distanceMoved.z*multiplier;
                 _objectToRotate.Rotate(Vector3.left, rotationAngleZ);
             }
 
