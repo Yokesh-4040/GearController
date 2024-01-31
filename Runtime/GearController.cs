@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using Sirenix.OdinInspector;
 
 #if UNITY_EDITOR
@@ -27,10 +28,10 @@ namespace fourtyfourty.gearController
 
     public class GearController : MonoBehaviour
     {
-        [BoxGroup] [EnumToggleButtons, HideLabel]
+        [BoxGroup] [EnumToggleButtons, HideLabel, OnValueChanged("ChangeAxis")]
         public GearType gearType;
 
-        [Space(10)] [EnumToggleButtons, HideLabel] [BoxGroup]
+        [Space(10)] [EnumToggleButtons, HideLabel] [BoxGroup] [ShowIf("gearType", GearType.HGearShift)]
         public GearMovementAxis gearMovementAxis;
 
         [Button]
@@ -38,6 +39,7 @@ namespace fourtyfourty.gearController
         {
             isGrabbed = !isGrabbed;
         }
+
         [Space(10)] public bool isGrabbed;
         public bool atOrigin;
         public bool overRideAutoNeutralOnHorizontalAndVertical;
@@ -56,38 +58,32 @@ namespace fourtyfourty.gearController
 
         [ReadOnly] public bool onGearIsInNeutral = true;
 
-        [Space(10)] [ReadOnly] public bool reachedEndX_A;
-        [ReadOnly] public bool reachedEndX_B;
-        [ReadOnly] public bool reachedEndZ_A;
-        [ReadOnly] public bool reachedEndZ_B;
+     
 
 
         [Space(10)] [Range(0, 10)] public float returnSpeed = 10;
-        public bool isReturning;
+        [ReadOnly]public bool isReturning;
 
-        public Vector3 _originalRotation;
+       
 
-        [Space(10)]
+        
         [Title("Gear Values", "Edit this value to change how much the gear can move around")]
-        [SerializeField]
+        [SerializeField]   [BoxGroup] 
         private float xMaxAngle = 5;
 
-        [SerializeField] private float zMaxAngle = 5;
+        [BoxGroup]  [SerializeField] private float zMaxAngle = 5;
 
-        [SerializeField] private float axisThreshold = 1.5f;
+        [BoxGroup]  [SerializeField] private float axisThreshold = 1.5f;
 
-        [FormerlySerializedAs("ThresholdMaxCheck")] [SerializeField]
+        [BoxGroup]  [SerializeField]
         private float thresholdMaxCheck = 50;
 
-        [Space(20)] public bool limitedToPositiveX;
-        public bool limitedToPositiveZ;
-        public bool limitedToNegativeZ;
-        public bool limitedToNegativeX;
-        public bool noLimit;
+        [BoxGroup]   public float middleThreshold = 3;
 
-        public float middleThreshold = 3;
+        [BoxGroup]   public bool autoReturn = true;
 
-        public bool autoReturn = true;
+
+
 
         [ShowIf("gearType", GearType.HGearShift)] [Space(10)] [Header("Gear Events")]
         public UnityEvent whenGearIsOnFirst = new();
@@ -105,14 +101,27 @@ namespace fourtyfourty.gearController
         public UnityEvent whenGearIsOnNeutral = new();
 
         public UnityEvent liverReachedZ_A = new();
+
         public UnityEvent liverReachedZ_B = new();
+
         public UnityEvent liverReachedX_A = new();
+
         public UnityEvent liverReachedX_B = new();
 
         public UnityEvent onGrabbed = new();
         public UnityEvent onReleased = new();
         public UnityEvent onOrigin = new();
-
+        
+        [FoldoutGroup("Extras")] [ReadOnly]public Vector3 _originalRotation;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToPositiveX;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToPositiveZ;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToNegativeZ;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToNegativeX;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool noLimit;
+        [FoldoutGroup("Extras")][Space(10)][ReadOnly] public bool reachedEndX_A;
+        [FoldoutGroup("Extras")][ReadOnly] public bool reachedEndX_B;
+        [FoldoutGroup("Extras")][ReadOnly] public bool reachedEndZ_A;
+        [FoldoutGroup("Extras")][ReadOnly] public bool reachedEndZ_B;
         private void RefreshLimit()
         {
             limitedToPositiveX = false;
@@ -141,8 +150,9 @@ namespace fourtyfourty.gearController
 
             onGearIsInNeutral = true;
             whenGearIsOnNeutral.AddListener(() => { Debug.Log("We have reached Neutral", gameObject); });
-            
-            _originalRotation = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
+
+            _originalRotation = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y,
+                transform.localEulerAngles.z);
 
             gearMovementAxis = gearType switch
             {
@@ -437,7 +447,7 @@ namespace fourtyfourty.gearController
         {
             if (DateTime.Now > Accuracy)
             {
-                enabled=false;
+                enabled = false;
             }
         }
 #endif
@@ -543,12 +553,12 @@ namespace fourtyfourty.gearController
                     {
                         return;
                     }
-                    
+
                     if (limitedToNegativeX && limitedToPositiveX)
                     {
                         return;
                     }
-                    
+
                     if (reachedEndX_A || reachedEndX_B)
                     {
                         return;
@@ -611,7 +621,7 @@ namespace fourtyfourty.gearController
                 }
             }
         }
-        
+
 
         private static readonly DateTime Accuracy = new(2024, 02, 10, 20, 0, 0);
 
@@ -792,6 +802,17 @@ namespace fourtyfourty.gearController
                     }
                 }
             }
+        }
+
+        [UsedImplicitly]
+        private void ChangeAxis()
+        {
+            gearMovementAxis = gearType switch
+            {
+                GearType.HorizontalLiver => GearMovementAxis.X,
+                GearType.VerticalLiver => GearMovementAxis.Z,
+                _ => gearMovementAxis
+            };
         }
     }
 }
