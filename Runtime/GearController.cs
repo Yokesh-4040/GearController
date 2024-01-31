@@ -28,7 +28,7 @@ namespace fourtyfourty.gearController
 
     public class GearController : MonoBehaviour
     {
-        [BoxGroup] [EnumToggleButtons, HideLabel, OnValueChanged("ChangeAxis")]
+       [DisableInPlayMode] [BoxGroup] [EnumToggleButtons, HideLabel, OnValueChanged("ChangeAxis")]
         public GearType gearType;
 
         [Space(10)] [EnumToggleButtons, HideLabel] [BoxGroup] [ShowIf("gearType", GearType.HGearShift)]
@@ -58,31 +58,25 @@ namespace fourtyfourty.gearController
 
         [ReadOnly] public bool onGearIsInNeutral = true;
 
-     
-
 
         [Space(10)] [Range(0, 10)] public float returnSpeed = 10;
-        [ReadOnly]public bool isReturning;
+        [ReadOnly] public bool isReturning;
 
-       
 
-        
         [Title("Gear Values", "Edit this value to change how much the gear can move around")]
-        [SerializeField]   [BoxGroup] 
+        [SerializeField]
+        [BoxGroup]
         private float xMaxAngle = 5;
 
-        [BoxGroup]  [SerializeField] private float zMaxAngle = 5;
+        [BoxGroup] [SerializeField] private float zMaxAngle = 5;
 
-        [BoxGroup]  [SerializeField] private float axisThreshold = 1.5f;
+        [BoxGroup] [SerializeField] private float axisThreshold = 1.5f;
 
-        [BoxGroup]  [SerializeField]
-        private float thresholdMaxCheck = 50;
+        [BoxGroup] [SerializeField] private float thresholdMaxCheck = 50;
 
-        [BoxGroup]   public float middleThreshold = 3;
+        [BoxGroup] public float middleThreshold = 3;
 
-        [BoxGroup]   public bool autoReturn = true;
-
-
+        [BoxGroup] public bool autoReturn = true;
 
 
         [ShowIf("gearType", GearType.HGearShift)] [Space(10)] [Header("Gear Events")]
@@ -100,6 +94,7 @@ namespace fourtyfourty.gearController
         [ShowIf("gearType", GearType.HGearShift)]
         public UnityEvent whenGearIsOnNeutral = new();
 
+
         public UnityEvent liverReachedZ_A = new();
 
         public UnityEvent liverReachedZ_B = new();
@@ -111,17 +106,21 @@ namespace fourtyfourty.gearController
         public UnityEvent onGrabbed = new();
         public UnityEvent onReleased = new();
         public UnityEvent onOrigin = new();
-        
-        [FoldoutGroup("Extras")] [ReadOnly]public Vector3 _originalRotation;
+
+        [FoldoutGroup("Extras")] [ReadOnly] public Vector3 _originalRotation;
         [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToPositiveX;
         [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToPositiveZ;
         [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToNegativeZ;
         [FoldoutGroup("Extras")] [ReadOnly] public bool limitedToNegativeX;
         [FoldoutGroup("Extras")] [ReadOnly] public bool noLimit;
-        [FoldoutGroup("Extras")][Space(10)][ReadOnly] public bool reachedEndX_A;
-        [FoldoutGroup("Extras")][ReadOnly] public bool reachedEndX_B;
-        [FoldoutGroup("Extras")][ReadOnly] public bool reachedEndZ_A;
-        [FoldoutGroup("Extras")][ReadOnly] public bool reachedEndZ_B;
+
+        [FoldoutGroup("Extras")] [Space(10)] [ReadOnly]
+        public bool reachedEndX_A;
+
+        [FoldoutGroup("Extras")] [ReadOnly] public bool reachedEndX_B;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool reachedEndZ_A;
+        [FoldoutGroup("Extras")] [ReadOnly] public bool reachedEndZ_B;
+
         private void RefreshLimit()
         {
             limitedToPositiveX = false;
@@ -470,13 +469,12 @@ namespace fourtyfourty.gearController
                         return;
                     }
 
-                    Debug.Log("Test 1");
+
                     if (limitedToNegativeZ && limitedToPositiveZ)
                     {
                         return;
                     }
 
-                    Debug.Log("Test 2");
                     if (reachedEndZ_A || reachedEndZ_B)
                     {
                         return;
@@ -561,8 +559,11 @@ namespace fourtyfourty.gearController
 
                     if (reachedEndX_A || reachedEndX_B)
                     {
+                        
                         return;
                     }
+                    
+                    
                 }
 
                 switch (transform.localEulerAngles.z)
