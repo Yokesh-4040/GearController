@@ -407,7 +407,7 @@ namespace fourtyfourty.gearController
                 }
             }
 
-            if (gearType == GearType.HorizontalLiver || gearType == GearType.VerticalLiver)
+            if (gearType is GearType.HorizontalLiver or GearType.VerticalLiver)
             {
                 transform.localRotation = gearType switch
                 {

@@ -20,6 +20,11 @@ namespace fourtyfourty.gearController
 
         private MeshRenderer _meshRenderer;
 
+        [Button]
+        public void LetsGrabThis()
+        {
+            gearController.isGrabbed = true;
+        }
         private void Start()
         {
             if (handleDefaultPos == null)
