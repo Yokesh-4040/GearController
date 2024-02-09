@@ -399,7 +399,7 @@ namespace fourtyfourty.gearController
                         break;
                     }
                     case GearType.HGearShift:
-                        Debug.Log("Setting Position");
+//                        Debug.Log("Setting Position");
                         transform.localRotation = gearMovementAxis == GearMovementAxis.X
                             ? Quaternion.Euler(transform.localEulerAngles.x, transform.localEulerAngles.y, 0)
                             : Quaternion.Euler(0, transform.localEulerAngles.y, transform.localEulerAngles.z);
@@ -507,7 +507,7 @@ namespace fourtyfourty.gearController
                         reachedEndX_B = true;
                         break;
                     case var x when x <= xMaxAngle - axisThreshold:
-                        Debug.Log("Resetting X");
+//                          Debug.Log("Resetting X");
                         reachedEndX_B = false;
                         reachedEndX_A = false;
 

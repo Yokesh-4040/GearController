@@ -8,6 +8,12 @@ namespace fourtyfourty.gearController
         [DisplayAsString][BoxGroup]
         public string distanceMoved;
         
+        [DisplayAsString][BoxGroup]
+        public string X;
+        
+        [DisplayAsString][BoxGroup]
+        public string Y;
+        
         private Transform _objectToRotate; // Assign the object you want to rotate in the Inspector
 
         [SerializeField] private Transform handleDefaultPos; // max sure the pivot is correct for this
@@ -45,7 +51,7 @@ namespace fourtyfourty.gearController
 
         private void Update()
         {
-            this.distanceMoved = (transform.localPosition - handleDefaultPos.localPosition).ToString();
+            distanceMoved = (transform.localPosition - handleDefaultPos.localPosition).ToString();
             var r = GetComponent<Rigidbody>();
             if (!gearController.isGrabbed)
             {
@@ -73,14 +79,15 @@ namespace fourtyfourty.gearController
 
             Vector3 moved = transform.localPosition - _previousPosition;
 
+            X= Mathf.Abs(moved.x) + ( Mathf.Abs(moved.x) > 0.001f).ToString();
+            Debug.Log(moved.x);
             // Check if the object is moving on the X-axis
             if (Mathf.Abs(moved.x) > 0.001f)
             {
-                
                 float rotationAngleX = moved.x*multiplier;
                 _objectToRotate.Rotate(Vector3.forward, rotationAngleX);
             }
-
+            Y= Mathf.Abs(moved.z) + ( Mathf.Abs(moved.z) > 0.001f).ToString();
             // Check if the object is moving on the Z-axis
             if (Mathf.Abs(moved.z) > 0.001f)
             {
