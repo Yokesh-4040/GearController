@@ -48,7 +48,7 @@ namespace fourtyfourty.gearController
             _previousPosition = transform.localPosition;
             _meshRenderer = GetComponent<MeshRenderer>();
         }
-
+public bool makeKinmatic;
         private void Update()
         {
             distanceMoved = (transform.localPosition - handleDefaultPos.localPosition).ToString();
@@ -71,7 +71,14 @@ namespace fourtyfourty.gearController
                 }
                 return;
             }
-
+if(makeKinmatic)
+    {
+              if (r.isKinematic)
+                        {
+                            r.isKinematic = false;
+                            Debug.Log("Turning off");
+                        }}
+        
             if (_meshRenderer.enabled)
             {
                 _meshRenderer.enabled = false;
