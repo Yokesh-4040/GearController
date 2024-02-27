@@ -1,12 +1,12 @@
 {
   "name": "com.fourtyfourty.gearcontroller",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "displayName": "Gear Controller",
   "description": "Gear Controller package speedup your simulator workflow",
   "unity": "2022.3",
   "unityRelease": "15f1",
   "author": {
-    "name": "Yokesh",
+    "name": "=4040",
     "email": "yokesh@fourtyfourty.in",
     "url": "www.fourtyfourty.com"
   },

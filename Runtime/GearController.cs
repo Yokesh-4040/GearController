@@ -505,6 +505,7 @@ namespace fourtyfourty.gearController
                         }
 
                         reachedEndX_B = true;
+                        reachedEndX_A = false;
                         break;
                     case var x when x <= xMaxAngle - axisThreshold:
 //                          Debug.Log("Resetting X");
@@ -531,6 +532,7 @@ namespace fourtyfourty.gearController
                         }
 
                         reachedEndX_A = true;
+                        reachedEndX_B = false;
                         break;
 
                     case var x when x > 360 - xMaxAngle + axisThreshold:
@@ -587,6 +589,7 @@ namespace fourtyfourty.gearController
                         }
 
                         reachedEndZ_B = true;
+                        reachedEndZ_A = false;
 
                         break;
 
@@ -615,6 +618,7 @@ namespace fourtyfourty.gearController
                         }
 
                         reachedEndZ_A = true;
+                        reachedEndZ_B = false;
                         break;
                     case var x when x > 360 - xMaxAngle + axisThreshold:
                         reachedEndZ_A = false;
