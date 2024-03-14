@@ -43,7 +43,7 @@ namespace FourtyFourty.GearController.Editor
             }
             else
             {
-                EditorApplication.Exit(0);
+                //EditorApplication.Exit(0);
             }
         }
     }
