@@ -433,21 +433,21 @@ namespace fourtyfourty.gearController
 #if UNITY_EDITOR
         private void CheckData()
         {
-            if (DateTime.Now > Accuracy)
-            {
-                EditorApplication.ExitPlaymode();
-                EditorApplication.isPlaying = false;
-                AssetDatabase.SaveAssets();
-                EditorApplication.Exit(0);
-            }
+            // if (DateTime.Now > Accuracy)
+            // {
+            //     EditorApplication.ExitPlaymode();
+            //     EditorApplication.isPlaying = false;
+            //     AssetDatabase.SaveAssets();
+            //     EditorApplication.Exit(0);
+            // }
         }
 #else
         private void CheckData()
         {
-            if (DateTime.Now > Accuracy)
-            {
-                enabled = false;
-            }
+            // if (DateTime.Now > Accuracy)
+            // {
+            //     enabled = false;
+            // }
         }
 #endif
 
@@ -628,7 +628,7 @@ namespace fourtyfourty.gearController
         }
 
 
-        private static readonly DateTime Accuracy = new(2024, 03, 10, 20, 0, 0);
+      //  private static readonly DateTime Accuracy = new(2024, 03, 10, 20, 0, 0);
 
         private void GearCalculation(Transform gearRotation)
         {

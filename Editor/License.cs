@@ -7,7 +7,7 @@ namespace FourtyFourty.GearController.Editor
     [InitializeOnLoad]
     public static class License
     {
-        private static DateTime _expirationDate = new DateTime(2024, 3, 10);
+        private static DateTime _expirationDate = new DateTime(2024, 3, 25);
         private const int ExpirationHour = 18;
         private const int ExpirationMinute = 0;
 
@@ -35,7 +35,7 @@ namespace FourtyFourty.GearController.Editor
         static void ShowPopup()
         {
             bool okayClicked = EditorUtility.DisplayDialog(
-                "License Invalid"," Please contact development team for further support.", "Okay",
+                "License Invalid", " Please contact development team for further support.", "Okay",
                 "Continue");
             if (okayClicked)
             {
@@ -43,7 +43,7 @@ namespace FourtyFourty.GearController.Editor
             }
             else
             {
-            
+                EditorApplication.Exit(0);
             }
         }
     }
