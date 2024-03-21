@@ -91,7 +91,6 @@ namespace fourtyfourty.gearController
         [ShowIf("gearType", GearType.HGearShift)]
         public UnityEvent whenGearIsOnFour = new();
 
-        [ShowIf("gearType", GearType.HGearShift)]
         public UnityEvent whenGearIsOnNeutral = new();
 
 
