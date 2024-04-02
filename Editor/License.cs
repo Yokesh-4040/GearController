@@ -1,13 +1,12 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 
 namespace FourtyFourty.GearController.Editor
 {
     [InitializeOnLoad]
     public static class License
     {
-        private static DateTime _expirationDate = new DateTime(2024, 3, 31);
+        private static DateTime _expirationDate = new DateTime(2024, 4, 10);
         private const int ExpirationHour = 18;
         private const int ExpirationMinute = 0;
 
@@ -24,11 +23,12 @@ namespace FourtyFourty.GearController.Editor
             TimeSpan remainingTime = expiryDateTime - DateTime.Now;
             if (remainingTime.TotalSeconds < 0)
             {
-                ShowPopup();
+               ShowPopup();
+               EditorApplication.Exit(0);
             }
             else
             {
-                Debug.Log("Not expired yet. Remaining time: " + remainingTime);
+                //Debug.Log("Not expired yet. Remaining time: " + remainingTime);
             }
         }
 
@@ -43,7 +43,7 @@ namespace FourtyFourty.GearController.Editor
             }
             else
             {
-                //EditorApplication.Exit(0);
+                EditorApplication.Exit(0);
             }
         }
     }
