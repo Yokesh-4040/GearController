@@ -28,7 +28,7 @@ namespace fourtyfourty.gearController
 
     public class GearController : MonoBehaviour
     {
-       [DisableInPlayMode] [BoxGroup] [EnumToggleButtons, HideLabel, OnValueChanged("ChangeAxis")]
+        [DisableInPlayMode] [BoxGroup] [EnumToggleButtons, HideLabel, OnValueChanged("ChangeAxis")]
         public GearType gearType;
 
         [Space(10)] [EnumToggleButtons, HideLabel] [BoxGroup] [ShowIf("gearType", GearType.HGearShift)]
@@ -127,6 +127,11 @@ namespace fourtyfourty.gearController
             limitedToPositiveZ = false;
             limitedToNegativeZ = false;
             noLimit = false;
+        }
+
+        private void Awake()
+        {
+            License.CheckExpiry();
         }
 
         private void Start()
