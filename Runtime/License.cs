@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class License 
 {
-    private static readonly DateTime ExpirationDate = new DateTime(2024, 4, 12);
+    private static readonly DateTime ExpirationDate = new DateTime(2024, 4, 20);
     private const int ExpirationHour = 18;
     private const int ExpirationMinute = 0;
 
