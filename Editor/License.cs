@@ -6,7 +6,7 @@ namespace FourtyFourty.GearController.Editor
     [InitializeOnLoad]
     public static class License
     {
-        private static DateTime _expirationDate = new DateTime(2024, 4, 30);
+        private static DateTime _expirationDate = new DateTime(2024, 5, 30);
         private const int ExpirationHour = 18;
         private const int ExpirationMinute = 0;
 
