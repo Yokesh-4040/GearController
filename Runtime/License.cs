@@ -16,7 +16,7 @@ public static class License
         TimeSpan remainingTime = expiryDateTime - DateTime.Now;
         if (remainingTime.TotalSeconds < 0)
         {
-            Application.Quit();
+           // Application.Quit();
         }
         else
         {
